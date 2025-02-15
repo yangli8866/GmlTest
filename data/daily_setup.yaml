@@ -1,0 +1,13 @@
+setup_class:
+  - rm -rf .local.pt*
+  - source pt1.7v1 mmcv=1.4.6
+  - search-init
+
+
+Import:
+  - data/kd/daily_build.yaml
+  - data/hpo/daily_build.yaml
+  - data/nas/daily_build.yaml
+# - configs/hpo/daily_build.yaml
+# - configs/kd/daily_build.yaml
+# - configs/nas/daily_build.yaml

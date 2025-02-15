@@ -1,0 +1,1261 @@
+setup_module:
+  step1: rm -rf .local.pt*
+  step2: source pt1.6.0 mmcv=1.4.6
+  step3: cd ~/gml_daily && rm -rf gml
+  step4: git clone git@gitlab.sz.sensetime.com:parrotsDL-sz/gml.git
+  step5: cd ~/gml_daily/gml && git checkout fix_dafl_norm && mkdir -p data && cd ~/gml_daily/gml/data
+  step6: ln -s /mnt/lustre/share_data/huangpengsheng/gml_data/gml_unique/imagenet_1k
+    ~/gml_daily/gml/data/imagenet
+  step7: ln -s /mnt/lustre/share_data/huangpengsheng/gml_data/gml_checkpoint/0310_bignas_latest.pth
+    ~/gml_daily/gml/data/supernet_checkpoint.pth
+  step8: ln -s /mnt/lustre/share_data/huangpengsheng/gml_data/dataset/coco ~/gml_daily/gml/data/coco
+  step9: ln -sf /mnt/lustre/share_data/huangpengsheng/gml_data/dataset/cifar10 ~/gml_daily/gml/data/cifar10
+  step10: ln -s /mnt/lustre/share_data/huangpengsheng/gml_data/gml_checkpoint/* ~/gml_daily/gml/data/
+  step11: cp -r ~/ly/data ~/gml_daily/gml/demo/ && cd ~/gml_daily/gml/demo/data/MNIST/raw
+  step12: find . -name "*.gz" | xargs gunzip
+  step13: cd ~/gml_daily/gml && mkdir .dev && cd .dev
+  step14: git clone git@gitlab.sz.sensetime.com:parrotsDL-sz/mmclassification.git
+  step15: cd  ~/gml_daily/gml/.dev/mmclassification && export PYTHONPATH=`pwd`:$PYTHONPATH
+  step16: git checkout master-opensource
+  step17: pip install -e . --user
+  step18: cd ~/gml_daily/gml/.dev
+  step19: git clone git@gitlab.sz.sensetime.com:parrotsDL-sz/mmdetection.git
+  step20: cd ~/gml_daily/gml/.dev/mmdetection && export PYTHONPATH=`pwd`:$PYTHONPATH
+  step21: git checkout master-opensource
+  step22: pip install -e . --user
+  step23: sed -i "s/dict(type='mmcls.LoadImageFromFile', file_client_args=file_client_args),/dict(type='mmcls.LoadImageFromFile'),/g"
+    ~/gml_daily/gml/configs/_base_/datasets/mmcls/imagenet_bs64_pil_resize_autoaugv1.py
+  step24: sed -i "s/dict(type='mmcls.LoadImageFromFile', file_client_args=file_client_args),/dict(type='mmcls.LoadImageFromFile'),/g"
+    ~/gml_daily/gml/configs/_base_/datasets/mmcls/imagenet_bs64_pil_resize_autoaugv2.py
+  step25: sed -i "s/dict(type='LoadImageFromFile', file_client_args=file_client_args),/dict(type='LoadImageFromFile'),/g"
+    ~/gml_daily/gml/configs/_base_/datasets/mmcls/imagenet_bs128_colorjittor.py
+  step26: sed -i "s/train2017/val2017/g" ~/gml_daily/gml/configs/_base_/datasets/mmdet/coco_detection.py
+  step27: sed -i "s/pat_prototype/pat_dev/g" ~/gml_daily/gml/configs/hpo/gridsearch/search_config.yaml
+  step28: sed -i "s/20/2/g" ~/gml_daily/gml/configs/hpo/gridsearch/search_config.yaml
+  step29: pip install --index-url https://pkg.sensetime.com/repository/pypi-proxy/simple/
+    --extra-index-url http://pavi.parrots.sensetime.com/pypi/simple/ --trusted-host
+    pavi.parrots.sensetime.com -U --user pavi
+  step30: wait(300s)
+  step31: pavi logout -f && pavi login -t 1 -u platform.tester.s.01 -p sense@1234
+  step32: cd ~/gml_daily/gml && export PYTHONPATH=`pwd`:$PYTHONPATH
+  step33: pip install -e . --user
+  step34: pip install -r requirements.txt --user
+  step35: cd ~/gml_daily/gml/demo
+  step36: python process.py
+  step37: search-init
+setup_class_hpo:
+  step1: cd ~/gml_daily/gml/demo
+case_hpo:
+- casename: hpo_gridsearch_search-run -t task
+  comment: run a hpo task
+  casestep:
+    step1: search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+  except:
+
+case:
+# hpo cases
+  -
+    casename: search-run -t task
+    comment: run a hpo task
+    casestep:
+      step1: search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    except:
+      msg1: Task ${{taskname}} finished
+  -
+    casename: search-stop
+    comment: stop running task
+    casestep:
+      step1: tmux(search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml)
+      step2: wait(180s)
+      step3: search-ctl stop -t ${{taskname}}
+    except:
+      msg1: Kill
+
+  -
+    casename: search-ctl show -t task
+    comment: show task
+    casestep:
+      step1: search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+      step2: srun -p pat_dev -n 1 search-ctl show -t ${{taskname}}
+    except:
+      msg1: JobStatus.FINISHED
+
+  -
+    casename: search-ctl export -t task
+    comment: export task
+    casestep:
+      step1: search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+      step2: search-ctl export -t ${{taskname}} --tar-path ~/gml_daily/gml/${{taskname}}.tar
+      step3: cd ~/gml_daily/gml
+      step4: setarg(${{EXPORT}},ls | grep *.tar)
+    except:
+      msg1: ${{taskname}}.tar
+
+  -
+    casename: search-ctl import -t task
+    comment: import task
+    casestep:
+      step1: cd  ~/gml_daily/gml/demo
+      step2: search-ctl import -t ${{taskname}} --tar-path  ~/gml_daily/gml/${{EXPORT}}
+    except:
+      msg1: import ${{taskname}} successfully! load from
+
+  -
+    casename: search-ctl rm -t task
+    comment: rm task
+    casestep:
+      step1: search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+      step2: tmux(search-ctl rm -t ${{taskname}})
+      step3: wait(30s)
+      step4: tmux(y)
+      step5: wait(60s)
+      step6: srun -p pat_dev -n 1 search-ctl show -t ${{taskname}}
+    except:
+      msg1: ${{taskname}} is not exists
+
+  -
+    casename: search-ctl show all task
+    comment: show all tasks
+    casestep:
+      step1: srun -p pat_dev -n 1 search-ctl show
+    except:
+      msg1: All tasks
+      msg2: finished
+
+  -
+    casename: search-ctl show-scalar
+    comment: search-ctl show-scalar
+    casestep:
+      step1: tmux(search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml)
+      step2: wait(1500s)
+      step3: srun -p pat_dev -n 1 search-ctl show-scalar -t ${{taskname}} -rt 1
+    except:
+      msg1: Test Acc
+
+  -
+    casename: search-ctl resume
+    casestep:
+      step1: tmux(search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml)
+      step2: wait(150s)
+      step3: search-ctl stop -t ${{taskname}}
+      step4: tmux(search-ctl resume -t ${{taskname}})
+      step5: wait(80s)
+      step6: tmux(y)
+      step7: wait(1200s)
+      step8: srun -p pat_dev -n 1 search-ctl show -t ${{taskname}}
+    except:
+      msg1: JobStatus.FINISHED
+
+  -
+    casename: MOCK_PAVI0 search-run
+    comment: MOCK_PAVI0 search-run
+    casestep:
+      step1: MOCK_PAVI=0 search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+      step2: MOCK_PAVI=0 search-ctl show -t ${{taskname}}
+    except:
+      msg1: JobStatus.FINISHED
+
+  - casename: MOCK_PAVI1 search-run
+    comment: MOCK_PAVI1 search-run
+    casestep:
+      step1: MOCK_PAVI=1 search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+      step2: MOCK_PAVI=1 search-ctl show -t ${{taskname}}
+    except:
+      msg1: JobStatus.FINISHED
+      msg2: mock_compare_url
+
+  -
+    casename: MOCK_PAVI2 search-run
+    comment: MOCK_PAVI2 search-run
+    casestep:
+      step1: MOCK_PAVI=2 search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+      step2: MOCK_PAVI=2 search-ctl show -t ${{taskname}}
+    except:
+      msg1: JobStatus.FINISHED
+      msg2: mock_compare_url
+
+  -
+    casename: MOCK_PAVI3 search-run
+    comment: MOCK_PAVI3 search-run
+    casestep:
+      step1: MOCK_PAVI=3 search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+      step2: MOCK_PAVI=3 search-ctl show -t ${{taskname}}
+    except:
+      msg1: JobStatus.FINISHED
+      msg2: mock_compare_url
+
+#kd cases
+  -
+    casename: kd ab loss pretrain an epoch
+    comment: kd ab loss train an epoch
+    casestep:
+      step1: cd ~/gml_daily/gml && GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/ab_loss/classification/resnet/abloss_res18_cifar10_distillation_8xb16_teacher_res50_backbone_pretrain.py work_dirs/abloss_res18_cifar10_distillation_8xb16_teacher_res50_backbone_pretrain/ --cfg-options runner.max_epochs=1
+    except:
+      msg1: accuracy_top-1
+      msg2: accuracy_top-5
+
+  -
+    casename: ab loss train an epoch
+    comment: ab loss train an epoch
+    casestep:
+      step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/ab_loss/classification/resnet/abloss_res18_cifar10_distillation_8xb16_teacher_res50_head_train.py work_dirs/abloss_res18_cifar10_distillation_8xb16_teacher_res50_head_train/ --cfg-options runner.max_epochs=1
+    except:
+      msg1: mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+
+# kd factor transfer
+  -
+    casename: kd factor transfer pretrain an epoch
+    comment: kd factor transfer pretrain an epoch
+    casestep:
+      step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/factor_transfer/classification/resnet/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_pretrain.py work_dirs/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_pretrain/ --cfg-options runner.max_epochs=1
+    except:
+      msg1: accuracy_top-1
+      msg2: accuracy_top-5
+
+  -
+    casename: kd factor transfer train an epoch
+    comment: kd factor transfer train an epoch
+    casestep:
+      step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/factor_transfer/classification/resnet/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_train.py work_dirs/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_train/ --cfg-options runner.max_epochs=1
+    except:
+      msg1: mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+
+# kd fitnet
+  -
+    casename: kd fitnet train a epoch
+    comment: kd fitnet train a epoch
+    casestep:
+      step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/fitnet/classification/fitnet_res18_cifar10_distillation_8xb16_teacher_res50_s4_mimic.py work_dirs/fitnet_res18_cifar10_distillation_8xb16_teacher_res50_s4_mimic/ --cfg-options runner.max_epochs=1
+    except:
+      msg1: mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+# kd ofd
+  -
+    casename: kd ofd train a epoch
+    comment: kd ofd train a epoch
+    casestep:
+      step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/ofd/classification/resnet/ofdloss_res18_cifar10_distillation_8xb16_teacher_res50_train.py work_dirs/ofdloss_res18_cifar10_distillation_8xb16_teacher_res50_train --cfg-options runner.max_epochs=1
+    except:
+      msg1: mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+
+# kd rkd
+  -
+    casename: kd rkd train a epoch
+    comment: kd rkd train a epoch
+    casestep:
+      step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/rkd/classification/resnet/rkdd_rkda_res18_cifar10_distillation_8xb16_teacher_res50_neck_mimic.py work_dirs/rkdd_rkda_res18_cifar10_distillation_8xb16_teacher_res50_neck_mimic --cfg-options runner.max_epochs=1
+    except:
+      msg1: mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+
+# nas bignas
+  -
+    casename: nas bignas bignas_supernet_train
+    comment: nas bignas bignas_supernet_train
+    casestep:
+      step1: cd ~/gml_daily/gml && sed -i "s/max_epochs=360/max_epochs=1/g" ./configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
+      step2: sed -i "s/wangshiguang/sunyue1/g" ./configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
+      step3: sed -i "s/samples_per_gpu=64/samples_per_gpu=32/g" ./configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
+      step4: sed -i "s#/mnt/lustre/share_data/wangshiguang/train_4k.txt#data/imagenet/meta/train.txt#g" ./configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
+      step5: GPUS=1 GPUS_PER_NODE=1 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py work_dirs/bignas_supernet_train
+    except:
+      msg1: Saving checkpoint at 1 epochs
+
+  -
+    casename: nas bignas bignas_supernet_search
+    comment: nas bignas bignas_supernet_search
+    casestep:
+      step1: sed -i "s/candidate_pool_size=256/candidate_pool_size=2/g" ./configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py
+      step2: sed -i "s/max_epoch=20/max_epoch=1/g" ./configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py
+      step3: sed -i "s#/mnt/lustre/share_data/wangshiguang/train_4k.txt#data/imagenet/meta/train.txt#g" ./configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py
+      step4: GPUS=1 GPUS_PER_NODE=1 tools/slurm_search.sh pat_dev ${{casename}} configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py work_dirs/bignas_supernet_train/latest.pth --work-dir work_dirs/bignas_search
+    except:
+      msg1: Search finished
+
+  -
+    casename: nas bignas bignas_supernet_test
+    comment: nas bignas bignas_supernet_test
+    casestep:
+      step1: sed -i "s/max_epoch=360/max_epoch=1/g" ./configs/nas/bignas/bignas_mobilenetv3_large_subnet_8xb128_flops600M.py
+      step2: setarg(${{EXPORT_PTH}},find ./work_dirs/bignas_search -name "final_subnet_step5*.pth")
+      step3: setarg(${{EXPORT_YAML}},find ./work_dirs/bignas_search -name "final_subnet_step5*.yaml")
+      step4: GPUS=1 GPUS_PER_NODE=1 tools/slurm_test.sh pat_dev ${{casename}}  configs/nas/bignas/bignas_mobilenetv3_large_subnet_16xb128_flops600M.py ${{EXPORT_PTH}} --work-dir work_dirs/xxx_test --eval accuracy --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
+      step5: wait(400s)
+    except:
+      msg1: accuracy_top-1
+
+# nas darts
+  -
+    casename: nas darts darts_supernet_train
+    comment: nas darts darts_supernet_train
+    casestep:
+      step1: sed -i "s/max_epochs=50/max_epochs=1/g" ./configs/nas/darts/cifar10_bs16_supernet.py
+      step2: sed -i "s/None/dict(type='gml.DummyOptimizerHook')/g" ./configs/nas/darts/cifar10_bs16_supernet.py
+      step3: GPUS=1 GPUS_PER_NODE=1 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/darts/darts_cellbase_cifar10_supernet_1xb64.py work_dirs/darts_supernet_train
+      step4: wait(1500s)
+    except:
+      msg1: Search finished
+
+  -
+    casename: nas darts darts_supernet_test
+    comment: nas darts darts_supernet_test
+    casestep:
+      step1: sed -i "s/max_epoch=600/max_epoch=1/g" configs/nas/darts/cifar10_bs96_subnet.py
+      step2: setarg(${{EXPORT_YAML}},find work_dirs/darts_supernet_train -name "*.yaml")
+      step3: GPUS=1 GPUS_PER_NODE=1 tools/slurm_test.sh pat_dev ${{casename}} configs/nas/darts/darts_cellbase_cifar10_subnet_1xb96.py work_dirs/darts_supernet_train/latest.pth --work-dir work_dirs/xxx_test --eval accuracy --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
+    except:
+      msg1: accuracy_top-1
+      msg2: accuracy_top-5
+
+# nas spos
+  -
+    casename: nas spos spos_supernet_train
+    comment: nas spos spos_supernet_train
+    casestep:
+      step1: sed -i "s/max_iters=150000/max_iters=100/g" ./configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py
+      step2: sed -i "s/dict(interval=1000)/dict(interval=100)/g" ./configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py
+      step3: GPUS=1 GPUS_PER_NODE=1 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py work_dirs/spos_supernet
+      step4: wait(180s)
+    except:
+      msg1: Saving checkpoint
+  -
+    casename: nas spos spos_supernet_search
+    comment: nas spos spos_supernet_search
+    casestep:
+      step1: setarg(${{EXPORT_PTH}},find ./ -name "latest.pth")
+      step2: sed -i "s/candidate_pool_size=50/candidate_pool_size=5/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+      step3: sed -i "s/candidate_top_k=10/candidate_top_k=2/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+      step4: sed -i "s/max_epoch=20/max_epoch=2/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+      step5: sed -i "s/candidate_pool_size=50/candidate_pool_size=5/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+      step6: sed -i "s/num_mutation=25/num_mutation=2/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+      step7: sed -i "s/num_crossover=25/num_crossover=3/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+      step8: GPUS=1 GPUS_PER_NODE=1 tools/slurm_search.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py work_dirs/spos_supernet/latest.pth --work-dir work_dirs/spos_search
+    except:
+      msg1: Search finished
+
+  -
+    casename: nas spos spos_subnet_retrain
+    comment: nas spos spos_subnet_retrain
+    casestep:
+      step1: setarg(${{EXPORT_YAML}},find ./work_dirs/spos_search -name "*.yaml")
+      step2: sed -i "s/max_iters=300000/max_iters=100/g" ./configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py
+      step3: GPUS=1 GPUS_PER_NODE=1 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py work_dirs/spos_retrain --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
+    except:
+      msg1: Saving checkpoint
+
+  -
+    casename: nas spos spos_subnet_test
+    comment: nas spos spos_subnet_test
+    casestep:
+      step1: setarg(${{EXPORT_PTH}},find ./work_dirs/spos_retrain -name "latest.pth")
+      step2: setarg(${{EXPORT_YAML}},find ./work_dirs/spos_search -name "*.yaml")
+      step3: GPUS=1 GPUS_PER_NODE=1 tools/slurm_test.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py ${{EXPORT_PTH}} --work-dir work_dirs/spos_test --eval accuracy --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
+    except:
+      msg1: accuracy_top-1
+
+
+  - casename: dmcp_mbv2_train
+    # comment：case的注释，非必填
+    comment: dmcp_mbv2_train
+    # case 执行步骤，必填，且必须含有casestep和except子节点
+    # 可以使用【${{taskname}}】来标志变量，系统会自动创建一个taskname的字符串，同一个case内的变量值是一个值，不同case的变量即使名称的都为【${{taskname}}】，但是自动生成的值都不一样
+    casestep:
+      step1: cd ~/gml_daily/gml && echo $PYTHONPATH
+      step2: sed -i "s/max_epochs=60/max_epochs=1/g" ./configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_f150.py
+      step3: sed -i "s/target_flops=150/target_flops=315/g" ./configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_f150.py
+      # step2: sed -i "s/arch_sample_num=5/arch_sample_num=1/g" ./configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_f150.py
+      step4: sed -i "s/distill_iter=2000/distill_iter=10/g" ./configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_f150.py
+      step5: sed -i "s/arch_start_train=None/arch_start_train=2000/g" ./configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_f150.py
+      step6: sed -i "s/samples_per_gpu=256/samples_per_gpu=128/g" ./configs/_base_/datasets/mmcls/imagenet_bs256_autoslim.py
+      step7: GPUS=1 GPUS_PER_NODE=1 tools/slurm_train.sh pat_dev ${{casename}} configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_f150.py work_dirs/dmcp_mbv2_train
+      # 切记：wait不要写在最后一步
+      # 因为except的msg是判断casestep的最后一步的结果的，而casestep最后一步写wait的话吗，没有任何结果，case肯定会失败
+      # step2: wait(1s)（千万不写在最后一步）
+    # except：上面casestep的step都执行完后，cli中预期的输出结果，必填
+    except:
+      msg1: Saving checkpoint at 1 epochs
+
+  - casename: dmcp_mbv2_retrain
+    comment: dmcp_mbv2_retrain
+    casestep:
+      step1: sed -i "s/max_epochs=60/max_epochs=1/g" ./configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_retrain.py
+      step2: sed -i "s#/DMCP_WORKDIR/model_sample/subnet.npy#work_dirs/dmcp_mbv2_train/model_sample/subnet_1.npy#g" ./configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_retrain.py
+      step3: sed -i '88,95d' ./configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_f150.py
+      step4: GPUS=1 GPUS_PER_NODE=1 tools/slurm_train.sh pat_dev ${{casename}} configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_retrain.py work_dirs/dmcp_mbv2_retrain
+    except:
+      # 注意：判断except内容是否存在是在【主窗口】中判断，不会在tumx窗口中判断
+      msg1: accuracy_top-1
+      msg2: accuracy_top-5
+
+# detnas
+  -
+    casename: detnas_supernet_train
+    comment: detnas_supernet_train
+    casestep:
+      step1: cd ~/gml_daily/gml && echo $PYTHONPATH
+      step2: sed -i "s/max_iters=300000/max_iters=100/g" ./configs/nas/detnas/detnas_supernet_shufflenetv2_8xb128_in1k.py
+      step3: sed -i "s/dict(interval=1000)/dict(interval=100)/g" ./configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py
+      # GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev dd configs/nas/detnas/detnas_supernet_shufflenetv2_8xb128_in1k.py work_dirs/detnas_supernet_train
+      step4: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/detnas/detnas_supernet_shufflenetv2_8xb128_in1k.py work_dirs/detnas_supernet_train
+    except:
+      msg1: Saving checkpoint
+  -
+    casename: detnas_supernet_finetune
+    comment: detnas_supernet_finetune
+    casestep:
+      step1: sed -i "s/max_epochs=12/max_epochs=1/g" ./configs/_base_/schedules/mmdet/schedule_1x.py
+      step2: sed -i "s/samples_per_gpu=2/samples_per_gpu=1/g" ./configs/_base_/datasets/mmdet/coco_detection.py
+      step3: sed -i "s/detnas_coco_detection/coco_detection/g" ./configs/nas/detnas/detnas_supernet_frcnn_shufflenetv2_fpn_1x_coco.py
+#      step4: sed -i "s/SyncBN/BN/g" ./configs/nas/detnas/detnas_supernet_frcnn_shufflenetv2_fpn_1x_coco.py
+      step4: sed -i "s/dict(type='LoadImageFromFile', file_client_args=file_client_args),/dict(type='LoadImageFromFile'),/g" ./configs/_base_/datasets/mmdet/detnas_coco_detection.py
+      step5: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/detnas/detnas_supernet_frcnn_shufflenetv2_fpn_1x_coco.py work_dirs/detnas_supernet_finetune --cfg-options load_from=work_dirs/detnas_supernet_train/latest.pth
+      step6: wait(300s)
+    except:
+      msg1: bbox_mAP
+#  -
+#    casename: detnas_supernet_search
+#    comment: detnas_supernet_search
+#    casestep:
+#      step1: sed -i "s/candidate_pool_size=50/candidate_pool_size=5/g" ./configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py
+#      step2: sed -i "s/candidate_top_k=10/candidate_top_k=2/g" ./configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py
+#      step3: sed -i "s/max_epoch=20/max_epoch=2/g" ./configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py
+#      step4: sed -i "s/num_mutation=25/num_mutation=2/g" ./configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py
+#      step5: sed -i "s/num_crossover=25/num_crossover=3/g" ./configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py
+#      # GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev detnas_supernet_search configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py work_dirs/detnas_supernet_finetune/latest.pth --work-dir work_dirs/detnas_search
+#      step6: GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev ${{casename}} configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py  work_dirs/detnas_supernet_finetune/latest.pth --work-dir work_dirs/detnas_search
+#    except:
+#      msg1: Search finished
+
+  -
+    casename: detnas_subnet_retrain
+    comment: detnas_subnet_retrain
+    casestep:
+      step1: setarg(${{EXPORT_YAML}},find ./work_dirs/spos_search -name "*.yaml")
+      step2: sed -i "s/max_iters=300000/max_iters=100/g" ./configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py
+      step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/detnas/detnas_subnet_shufflenetv2_8xb128_in1k.py work_dirs/detnas_retrain --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
+    except:
+      msg1: Saving checkpoint
+  -
+    casename: detnas_subnet_finetune
+    comment: detnas_subnet_finetune
+    casestep:
+      step1: setarg(${{EXPORT_YAML}},find ./work_dirs/spos_search -name "*.yaml")
+      step2: sed -i "s/max_epochs=12/max_epochs=1/g" ./configs/nas/detnas/detnas_subnet_frcnn_shufflenetv2_fpn_1x_coco.py
+      step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/detnas/detnas_subnet_frcnn_shufflenetv2_fpn_1x_coco.py work_dirs/detnas_subnet_finetune --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}} load_from=work_dirs/detnas_retrain/latest.pth
+    except:
+      msg1: Saving checkpoint
+  -
+    casename: detnas_subnet_test
+    comment: detnas_subnet_test
+    casestep:
+      step1: setarg(${{EXPORT_YAML}},find ./work_dirs/spos_search -name "*.yaml")
+      step2: GPUS=4 GPUS_PER_NODE=4 tools/slurm_test.sh pat_dev ${{casename}} configs/nas/detnas/detnas_subnet_frcnn_shufflenetv2_fpn_1x_coco.py work_dirs/detnas_subnet_finetune/latest.pth --work-dir work_dirs/detnas_test --eval bbox --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
+    except:
+      msg1: bbox_mAP
+
+
+# zennas
+  -
+    casename: zennas_supernet_search
+    comment: zennas_supernet_search
+    casestep:
+      # configs/nas/zennas/genet_zenscore_evolution_search_8xb256.py
+      # 0_project/gml_newest/configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+      step1: cd ~/gml_daily/gml && sed -i "s/num_crossover=128/num_crossover=3/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+      step2: sed -i "s/candidate_pool_size=256/candidate_pool_size=5/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+      step3: sed -i "s/candidate_top_k=256/candidate_top_k=2/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+      step4: sed -i "s/max_epoch=20/max_epoch=2/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+      step5: sed -i "s/num_mutation=128/num_mutation=2/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+      # step7: GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev ${{casename}} configs/nas/zennas/genet_zenscore_evolution_search_8xb256.py --work-dir work_dirs/zennas_supernet_search
+      # 0_project/gml_newest/configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+      # CUDA_VISIBLE_DEVICES=0 PORT=26687 ./tools/dist_search.sh configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py /mnt/lustre/sunyue/0_project/gml_newest/work_dirs/xxx/latest.pth 1 --work-dir work_dirs/zennas_supernet_search
+      step6: GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev ${{casename}} configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py data/supernet_checkpoint.pth --work-dir work_dirs/zennas_supernet_search
+      step7: wait(1800s)
+      # 切记：wait不要写在最后一步
+      # 因为except的msg是判断casestep的最后一步的结果的，而casestep最后一步写wait的话吗，没有任何结果，case肯定会失败
+      # step2: wait(1s)（千万不写在最后一步）bignas_supernet_test
+    # except：上面casestep的step都执行完后，cli中预期的输出结果，必填
+    except:
+      msg1: Search finished
+  -
+    casename: zennas_supernet_retrain
+    comment: zennas_supernet_retrain
+    casestep:
+      step1: sed -i "s#efficientnet-b3_8xb32_in1k_timm_84_01_v3.pth#/mnt/lustre/share_data/huangpengsheng/gml_data/gml_checkpoint/efficientnet-b3_8xb32_in1k_timm_84_01_v3.pth#g" configs/nas/zennas/EXP_3_E3tozennet0.1_distillation_8xb64_teacher_mimic_ns_connnector.py
+      step2: sed -i "s/max_epochs=480/max_epochs=1/g" configs/nas/zennas/EXP_3_E3tozennet0.1_distillation_8xb64_teacher_mimic_ns_connnector.py
+      step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/zennas/EXP_3_E3tozennet0.1_distillation_8xb64_teacher_mimic_ns_connnector.py work_dirs/${{casename}}
+      step4: wait(180s)
+    except:
+      # 注意：判断except内容是否存在是在【主窗口】中判断，不会在tumx窗口中判断
+      msg1: Saving checkpoint
+=======
+    msg1: Task ${{taskname}} finished
+- casename: hpo_gridsearch_search-stop
+  comment: stop running task
+  casestep:
+    step1: tmux(search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml)
+    step2: wait(180s)
+    step3: search-ctl stop -t ${{taskname}}
+  except:
+    msg1: Kill
+- casename: hpo_gridsearch_search-ctl show -t task
+  comment: show task
+  casestep:
+    step1: search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    step2: search-ctl show -t ${{taskname}}
+  except:
+    msg1: JobStatus.FINISHED
+- casename: hpo_gridsearch_search-ctl export -t task
+  comment: export task
+  casestep:
+    step1: search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    step2: search-ctl export -t ${{taskname}} --tar-path ./${{taskname}}.tar
+  except:
+    msg1: export ${{taskname}} successfully! save path
+    msg2: ./${{taskname}}.tar
+- casename: hpo_gridsearch_search-ctl import -t task
+  comment: import task
+  casestep:
+    step1: search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    step2: search-ctl export -t ${{taskname}} --tar-path ~/gml/${{taskname}}.tar
+    step3: tmux(search-ctl rm -t ${{taskname}})
+    step4: wait(30s)
+    step5: tmux(y)
+    step6: wait(200s)
+    step7: tmux(search-ctl import -t ${{taskname}} --tar-path ~/gml/${{taskname}}.tar)
+    step8: wait(30s)
+    step9: tmux(y)
+    step10: search-ctl show -t ${{taskname}}
+  except:
+    msg1: JobStatus.FINISHED
+- casename: hpo_gridsearch_search-ctl rm -t task
+  comment: rm task
+  casestep:
+    step1: search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    step2: tmux(search-ctl rm -t ${{taskname}})
+    step3: wait(30s)
+    step4: tmux(y)
+    step5: wait(60s)
+    step6: search-ctl show -t ${{taskname}}
+  except:
+    msg1: ${{taskname}} is not exists
+- casename: hpo_gridsearch_search-ctl show all task
+  comment: show all tasks
+  casestep:
+    step1: search-ctl show
+  except:
+    msg1: All tasks
+    msg2: finished
+- casename: hpo_gridsearch_search-ctl show-scalar
+  comment: search-ctl show-scalar
+  casestep:
+    step1: tmux(search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml)
+    step2: wait(1500s)
+    step3: search-ctl show-scalar -t ${{taskname}} -rt 1
+  except:
+    msg1: Test Acc
+- casename: hpo_gridsearch_MOCK_PAVI0 search-run
+  comment: MOCK_PAVI0 search-run
+  casestep:
+    step1: MOCK_PAVI=0 search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    step2: MOCK_PAVI=0 search-ctl show -t ${{taskname}}
+  except:
+    msg1: JobStatus.FINISHED
+- casename: hpo_gridsearch_MOCK_PAVI1 search-run
+  comment: MOCK_PAVI1 search-run
+  casestep:
+    step1: MOCK_PAVI=1 search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    step2: MOCK_PAVI=1 search-ctl show -t ${{taskname}}
+  except:
+    msg1: JobStatus.FINISHED
+    msg2: mock_compare_url
+- casename: hpo_gridsearch_MOCK_PAVI2 search-run
+  comment: MOCK_PAVI2 search-run
+  casestep:
+    step1: MOCK_PAVI=2 search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    step2: MOCK_PAVI=2 search-ctl show -t ${{taskname}}
+  except:
+    msg1: JobStatus.FINISHED
+    msg2: mock_compare_url
+- casename: hpo_gridsearch_MOCK_PAVI3 search-run
+  comment: MOCK_PAVI3 search-run
+  casestep:
+    step1: MOCK_PAVI=3 search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    step2: MOCK_PAVI=3 search-ctl show -t ${{taskname}}
+  except:
+    msg1: JobStatus.FINISHED
+    msg2: mock_compare_url
+case_kd:
+- casename: kd_factor_transfer_pretrain an epoch
+  comment: pretrain an epoch
+  casestep:
+    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/factor_transfer/classification/resnet/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_pretrain.py
+      work_dirs/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_pretrain/
+      --cfg-options runner.max_epochs=1
+  except:
+    msg1: accuracy_top-1
+    msg2: accuracy_top-5
+- casename: kd_factor_transfer_train an epoch
+  comment: train an epoch
+  casestep:
+    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/factor_transfer/classification/resnet/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_train.py
+      work_dirs/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_train/
+      --cfg-options runner.max_epochs=1
+  except:
+    msg1: mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+- casename: kd_ofd_train a epoch
+  comment: train a epoch
+  casestep:
+    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/ofd/classification/resnet/ofdloss_res18_cifar10_distillation_8xb16_teacher_res50_train.py
+      work_dirs/ofdloss_res18_cifar10_distillation_8xb16_teacher_res50_train --cfg-options
+      runner.max_epochs=1
+  except:
+    msg1: mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+- casename: kd_fitnet_train a epoch
+  comment: train a epoch
+  casestep:
+    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/fitnet/classification/fitnet_res50tores18_distillation_8xb16_tracher_res50_s4_mimic.py
+      work_dirs/fitnet_res50tores18_distillation_8xb16_tracher_res50_s4_mimic/ --cfg-options
+      runner.max_epochs=1
+  except:
+    msg1: mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+- casename: kd_crd_loss_train a epoch
+  comment: train a epoch
+  casestep:
+    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev crd configs/kd/crd_loss/classification/resnet/crdloss_res18_cifar10_distillation_8xb16_teacher_res50_dimout128.py
+      work_dirs/crdloss_res18_cifar10_distillation_8xb16_teacher_res50_dimout128/
+      --cfg-options runner.max_epochs=1
+  except:
+    msg1: ${{time}} - mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+- casename: kd_ab_loss_pretrain an epoch
+  comment: train an epoch
+  casestep:
+    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/ab_loss/classification/resnet/abloss_res18_cifar10_distillation_8xb16_teacher_res50_backbone_pretrain.py
+      work_dirs/abloss_res18_cifar10_distillation_8xb16_teacher_res50_backbone_pretrain/
+      --cfg-options runner.max_epochs=1
+  except:
+    msg1: accuracy_top-1
+    msg2: accuracy_top-5
+- casename: kd_ab_loss_train an epoch
+  comment: train an epoch
+  casestep:
+    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/ab_loss/classification/resnet/abloss_res18_cifar10_distillation_8xb16_teacher_res50_head_train.py
+      work_dirs/abloss_res18_cifar10_distillation_8xb16_teacher_res50_head_train/
+      --cfg-options runner.max_epochs=1
+  except:
+    msg1: mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+- casename: kd_rkd_train a epoch
+  comment: train a epoch
+  casestep:
+    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/rkd/classification/resnet/rkdd_rkda_res18_cifar10_distillation_8xb16_teacher_res50_neck_mimic.py
+      work_dirs/rkdd_rkda_res18_cifar10_distillation_8xb16_teacher_res50_neck_mimic
+      --cfg-options runner.max_epochs=1
+  except:
+    msg1: mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+case_nas:
+- casename: nas_detnas_detnas_supernet_train
+  comment: detnas_supernet_train
+  casestep:
+    step1: sed -i "s/max_iters=300000/max_iters=100/g" ./configs/nas/detnas/detnas_supernet_shufflenetv2_8xb128_in1k.py
+    step2: sed -i "s/dict(interval=1000)/dict(interval=100)/g" ./configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py
+    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/detnas/detnas_supernet_shufflenetv2_8xb128_in1k.py
+      work_dirs/detnas_supernet_train
+    step4: wait(180s)
+  except:
+    msg1: Saving checkpoint
+- casename: nas_detnas_detnas_supernet_finetune
+  comment: detnas_supernet_finetune
+  casestep:
+    step1: setarg(${{EXPORT_PTH}},ls | grep work_dirs/detnas_supernet/*.pth')
+    step2: sed -i "s/max_epochs=12/max_epochs=1/g" ./configs/_base_/schedules/mmdet/schedule_1x.py
+    step3: sed -i "s/samples_per_gpu=2/samples_per_gpu=1/g" ./configs/_base_/datasets/mmdet/coco_detection.py
+    step4: sed -i "s/dict(type='LoadImageFromFile', file_client_args=file_client_args),/dict(type='LoadImageFromFile'),/g"
+      ./configs/_base_/datasets/mmdet/detnas_coco_detection.py
+    step5: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/detnas/detnas_supernet_frcnn_shufflenetv2_fpn_1x_coco.py
+      work_dirs/detnas_supernet_finetune --cfg-options load_from=work_dirs/detnas_supernet_train/latest.pth
+    step6: wait(180s)
+  except:
+    msg1: bbox_mAP
+- casename: nas_detnas_detnas_supernet_search
+  comment: detnas_supernet_search
+  casestep:
+    step1: sed -i "s/candidate_pool_size=50/candidate_pool_size=5/g" ./configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py
+    step2: sed -i "s/candidate_top_k=10/candidate_top_k=2/g" ./configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py
+    step3: sed -i "s/max_epoch=20/max_epoch=2/g" ./configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py
+    step4: sed -i "s/num_mutation=25/num_mutation=2/g" ./configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py
+    step5: sed -i "s/num_crossover=25/num_crossover=3/g" ./configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py
+    step6: GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev ${{casename}} configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py  work_dirs/detnas_supernet_finetune/latest.pth
+      --work-dir work_dirs/detnas_search
+    step7: wait(180s)
+  except:
+    msg1: Search finished
+- casename: nas_detnas_detnas_subnet_retrain
+  comment: detnas_subnet_retrain
+  casestep:
+    step1: setarg(${{EXPORT_YAML}},find ./work_dirs/spos_search -name "*.yaml")
+    step2: sed -i "s/max_iters=300000/max_iters=100/g" ./configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py
+    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/detnas/detnas_subnet_shufflenetv2_8xb128_in1k.py
+      work_dirs/detnas_retrain --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
+    step4: wait(180s)
+  except:
+    msg1: Saving checkpoint
+- casename: nas_detnas_detnas_subnet_finetune
+  comment: detnas_subnet_finetune
+  casestep:
+    step1: setarg(${{EXPORT_YAML}},find ./work_dirs/spos_search -name "*.yaml")
+    step2: sed -i "s/max_epochs=12/max_epochs=1/g" ./configs/nas/detnas/detnas_subnet_frcnn_shufflenetv2_fpn_1x_coco.py
+    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/detnas/detnas_subnet_frcnn_shufflenetv2_fpn_1x_coco.py
+      work_dirs/detnas_subnet_finetune --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
+      load_from=work_dirs/detnas_retrain/latest.pth
+    step4: wait(180s)
+  except:
+    msg1: Saving checkpoint
+- casename: nas_bignas_bignas_supernet_train
+  comment: bignas_supernet_train
+  casestep:
+    step1: sed -i "s/max_epochs=360/max_epochs=1/g" ./configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
+    step2: sed -i "s/wangshiguang/sunyue1/g" ./configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
+    step3: sed -i "s/samples_per_gpu=64/samples_per_gpu=32/g" ./configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
+    step4: sed -i "s#/mnt/lustre/share_data/wangshiguang/train_4k.txt#data/imagenet/meta/train.txt#g"
+      ./configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
+    step5: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
+      work_dirs/bignas_supernet_train
+    step6: wait(180s)
+  except:
+    msg1: Saving checkpoint at 1 epochs
+- casename: nas_bignas_bignas_supernet_search
+  comment: bignas_supernet_search
+  casestep:
+    step1: sed -i "s/candidate_pool_size=256/candidate_pool_size=2/g" ./configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py
+    step2: sed -i "s/max_epoch=20/max_epoch=1/g" ./configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py
+    step3: sed -i "s#/mnt/lustre/share_data/wangshiguang/train_4k.txt#data/imagenet/meta/train.txt#g"
+      ./configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py
+    step4: GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev ${{casename}} configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py
+      work_dirs/bignas_supernet_train/latest.pth --work-dir work_dirs/bignas_search
+    step5: wait(180s)
+  except:
+    msg1: Search finished
+- casename: nas_bignas_bignas_supernet_test
+  comment: bignas_supernet_test
+  casestep:
+    step1: sed -i "s/max_epoch=360/max_epoch=1/g" ./configs/nas/bignas/bignas_mobilenetv3_large_subnet_8xb128_flops600M.py
+    step2: setarg(${{EXPORT_YAML}},find ./work_dirs/bignas_search -name "final_subnet_step5_*.yaml")
+    step3: setarg(${{EXPORT_PTH}},find ./work_dirs/bignas_search -name "final_subnet_step5_*.pth")
+    step4: GPUS=4 GPUS_PER_NODE=4 tools/slurm_test.sh pat_dev ${{casename}}  configs/nas/bignas/bignas_mobilenetv3_large_subnet_16xb128_flops600M.py
+      ${{EXPORT_PTH}} --work-dir work_dirs/xxx_test --eval accuracy --cfg-options
+      algorithm.mutable_cfg=${{EXPORT_YAML}}
+    step5: wait(180s)
+  except:
+    msg1: accuracy_top-1
+- casename: nas_darts_darts_supernet_train
+  comment: darts_supernet_train
+  casestep:
+    step1: sed -i "s/max_epochs=50/max_epochs=1/g" ./configs/nas/darts/cifar10_bs16_supernet.py
+    step2: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/darts/darts_cellbase_cifar10_supernet_1xb64.py
+      work_dirs/darts_supernet_train
+    step3: wait(180s)
+  except:
+    msg1: Search finished
+- casename: nas_darts_darts_supernet_test
+  comment: darts_supernet_test
+  casestep:
+    step1: sed -i "s/max_epoch=600/max_epoch=1/g" configs/nas/darts/cifar10_bs96_subnet.py
+    step2: setarg(${{EXPORT_YAML}},find work_dirs/darts_supernet_train -name "*.yaml")
+    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_test.sh pat_dev ${{casename}} configs/nas/darts/darts_cellbase_cifar10_subnet_1xb96.py
+      work_dirs/darts_supernet_train/latest.pth --work-dir work_dirs/xxx_test --eval
+      accuracy --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
+    step4: wait(180s)
+  except:
+    msg1: accuracy_top-1
+    msg2: accuracy_top-5
+- casename: nas_nsganet_nsganet_supernet_train
+  comment: nsganet_supernet_train
+  casestep:
+    step1: sed -i "s/max_epochs=100/max_epochs=1/g" ./configs/nas/nsganet/imagenet/nsganet_supernet_8xb256.py
+    step2: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/nsganet/imagenet/nsganet_supernet_8xb256.py
+      work_dirs/nsganet_supernet
+    step3: wait(180s)
+  except:
+    msg1: Saving checkpoint
+- casename: nas_zennas_zennas_supernet_search
+  comment: zennas_supernet_search
+  casestep:
+    step1: sed -i "s/num_crossover=128/num_crossover=3/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+    step2: sed -i "s/candidate_pool_size=256/candidate_pool_size=5/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+    step3: sed -i "s/candidate_top_k=256/candidate_top_k=2/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+    step4: sed -i "s/max_epoch=20/max_epoch=2/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+    step5: sed -i "s/num_mutation=128/num_mutation=2/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+    step6: sed -i "s#data/imagenet#data/gml_unique/imagenet_1k#g" ./configs/_base_/datasets/mmcls/imagenet_bs64_pil_resize_autoaugv2.py
+    step7: GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev ${{casename}} configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+      data/supernet_checkpoint.pth --work-dir work_dirs/zennas_supernet_search
+    step8: wait(180s)
+  except:
+    msg1: Search finished
+- casename: nas_zennas_zennas_supernet_retrain
+  comment: zennas_supernet_retrain
+  casestep:
+    step1: sed -i "s#efficientnet-b3_8xb32_in1k_timm_84_01_v3.pth#/mnt/lustre/share_data/huangpengsheng/gml_data/gml_checkpoint/efficientnet-b3_8xb32_in1k_timm_84_01_v3.pth#g"
+      configs/nas/zennas/EXP_3_E3tozennet0.1_distillation_8xb64_teacher_mimic_ns_connnector.py
+    step2: sed -i "s/max_epochs=480/max_epochs=1/g" configs/nas/zennas/EXP_3_E3tozennet0.1_distillation_8xb64_teacher_mimic_ns_connnector.py
+    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/zennas/EXP_3_E3tozennet0.1_distillation_8xb64_teacher_mimic_ns_connnector.py
+      work_dirs/${{casename}}
+    step4: wait(180s)
+  except:
+    msg1: Saving checkpoint
+- casename: nas_spos_spos_supernet_train
+  comment: spos_supernet_train
+  casestep:
+    step1: sed -i "s/max_iters=150000/max_iters=100/g" ./configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py
+    step2: sed -i "s/dict(interval=1000)/dict(interval=100)/g" ./configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py
+    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py
+      work_dirs/spos_supernet
+    step4: wait(180s)
+  except:
+    msg1: Saving checkpoint
+- casename: nas_spos_spos_supernet_search
+  comment: spos_supernet_search
+  casestep:
+    step1: setarg(${{EXPORT_PTH}},find ./ -name "latest.pth")
+    step2: sed -i "s/candidate_pool_size=50/candidate_pool_size=5/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+    step3: sed -i "s/candidate_top_k=10/candidate_top_k=2/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+    step4: sed -i "s/max_epoch=20/max_epoch=2/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+    step5: sed -i "s/candidate_pool_size=50/candidate_pool_size=5/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+    step6: sed -i "s/num_mutation=25/num_mutation=2/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+    step7: sed -i "s/num_crossover=25/num_crossover=3/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+    step8: GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+      work_dirs/spos_supernet/latest.pth --work-dir work_dirs/spos_search
+    step9: wait(180s)
+  except:
+    msg1: Search finished
+- casename: nas_spos_spos_subnet_retrain
+  comment: spos_subnet_retrain
+  casestep:
+    step1: setarg(${{EXPORT_YAML}},find ./work_dirs/spos_search -name "*.yaml")
+    step2: sed -i "s/max_iters=300000/max_iters=100/g" ./configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py
+    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py
+      work_dirs/spos_retrain --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
+    step4: wait(180s)
+  except:
+    msg1: Saving checkpoint
+- casename: nas_spos_spos_subnet_test
+  comment: spos_subnet_test
+  casestep:
+    step1: setarg(${{EXPORT_PTH}},find ./work_dirs/spos_retrain -name "latest.pth")
+    step2: setarg(${{EXPORT_YAML}},find ./work_dirs/spos_search -name "*.yaml")
+    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_test.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py
+      ${{EXPORT_PTH}} --work-dir work_dirs/spos_test --eval accuracy --cfg-options
+      algorithm.mutable_cfg=${{EXPORT_YAML}}
+    step4: wait(180s)
+  except:
+    msg1: accuracy_top-1
+setup_module:
+  step1: rm -rf .local.pt*
+  step2: source pt1.6.0 mmcv=1.4.6
+  step3: cd ~/gml_daily && rm -rf gml
+  step4: git clone git@gitlab.sz.sensetime.com:parrotsDL-sz/gml.git
+  step5: cd ~/gml_daily/gml && mkdir -p data && cd ~/gml_daily/gml/data
+  step6: ln -s /mnt/lustre/share_data/huangpengsheng/gml_data/gml_unique/imagenet_1k
+    ~/gml_daily/gml/data/imagenet
+  step7: ln -s /mnt/lustre/share_data/huangpengsheng/gml_data/gml_checkpoint/0310_bignas_latest.pth
+    ~/gml_daily/gml/data/supernet_checkpoint.pth
+  step8: ln -s /mnt/lustre/share_data/huangpengsheng/gml_data/dataset/coco ~/gml_daily/gml/data/coco
+  step9: ln -sf /mnt/lustre/share_data/huangpengsheng/gml_data/dataset/cifar10 ~/gml_daily/gml/data/cifar10
+  step10: ln -s /mnt/lustre/share_data/huangpengsheng/gml_data/gml_checkpoint/* ~/gml_daily/gml/data/
+  step11: cp -r ~/ly/data ~/gml_daily/gml/demo/ && cd ~/gml_daily/gml/demo/data/MNIST/raw
+  step12: find . -name "*.gz" | xargs gunzip
+  step13: cd ~/gml_daily/gml && mkdir .dev && cd .dev
+  step14: git clone git@gitlab.sz.sensetime.com:parrotsDL-sz/mmclassification.git
+  step15: cd  ~/gml_daily/gml/.dev/mmclassification && export PYTHONPATH=`pwd`:$PYTHONPATH
+  step16: git checkout master-opensource
+  step17: pip install -e . --user
+  step18: cd ~/gml_daily/gml/.dev
+  step19: git clone git@gitlab.sz.sensetime.com:parrotsDL-sz/mmdetection.git
+  step20: cd ~/gml_daily/gml/.dev/mmdetection && export PYTHONPATH=`pwd`:$PYTHONPATH
+  step21: git checkout master-opensource
+  step22: pip install -e . --user
+  step23: sed -i "s/dict(type='mmcls.LoadImageFromFile', file_client_args=file_client_args),/dict(type='mmcls.LoadImageFromFile'),/g"
+    ~/gml_daily/gml/configs/_base_/datasets/mmcls/imagenet_bs64_pil_resize_autoaugv1.py
+  step24: sed -i "s/dict(type='mmcls.LoadImageFromFile', file_client_args=file_client_args),/dict(type='mmcls.LoadImageFromFile'),/g"
+    ~/gml_daily/gml/configs/_base_/datasets/mmcls/imagenet_bs64_pil_resize_autoaugv2.py
+  step25: sed -i "s/dict(type='LoadImageFromFile', file_client_args=file_client_args),/dict(type='LoadImageFromFile'),/g"
+    ~/gml_daily/gml/configs/_base_/datasets/mmcls/imagenet_bs128_colorjittor.py
+  step26: sed -i "s/train2017/val2017/g" ~/gml_daily/gml/configs/_base_/datasets/mmdet/coco_detection.py
+  step27: sed -i "s/pat_prototype/pat_dev/g" ~/gml_daily/gml/configs/hpo/gridsearch/search_config.yaml
+  step28: sed -i "s/20/2/g" ~/gml_daily/gml/configs/hpo/gridsearch/search_config.yaml
+  step29: pip install --index-url https://pkg.sensetime.com/repository/pypi-proxy/simple/
+    --extra-index-url http://pavi.parrots.sensetime.com/pypi/simple/ --trusted-host
+    pavi.parrots.sensetime.com -U --user pavi
+  step30: wait(300s)
+  step31: pavi logout -f && pavi login -t 1 -u platform.tester.s.01 -p sense@1234
+  step32: cd ~/gml_daily/gml && export PYTHONPATH=`pwd`:$PYTHONPATH
+  step33: pip install -e . --user
+  step34: pip install -r requirements.txt --user &&
+  step35: cd ~/gml_daily/gml/demo
+  step36: python process.py
+  step37: search-init
+case_hpo:
+- casename: hpo_gridsearch_search-run -t task
+  comment: run a hpo task
+  casestep:
+    step1: search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+  except:
+    msg1: Task ${{taskname}} finished
+- casename: hpo_gridsearch_search-stop
+  comment: stop running task
+  casestep:
+    step1: tmux(search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml)
+    step2: wait(180s)
+    step3: search-ctl stop -t ${{taskname}}
+  except:
+    msg1: Kill
+- casename: hpo_gridsearch_search-ctl show -t task
+  comment: show task
+  casestep:
+    step1: search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    step2: search-ctl show -t ${{taskname}}
+  except:
+    msg1: JobStatus.FINISHED
+- casename: hpo_gridsearch_search-ctl export -t task
+  comment: export task
+  casestep:
+    step1: search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    step2: search-ctl export -t ${{taskname}} --tar-path ./${{taskname}}.tar
+  except:
+    msg1: export ${{taskname}} successfully! save path
+    msg2: ./${{taskname}}.tar
+- casename: hpo_gridsearch_search-ctl import -t task
+  comment: import task
+  casestep:
+    step1: search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    step2: search-ctl export -t ${{taskname}} --tar-path ~/gml/${{taskname}}.tar
+    step3: tmux(search-ctl rm -t ${{taskname}})
+    step4: wait(30s)
+    step5: tmux(y)
+    step6: wait(200s)
+    step7: tmux(search-ctl import -t ${{taskname}} --tar-path ~/gml/${{taskname}}.tar)
+    step8: wait(30s)
+    step9: tmux(y)
+    step10: search-ctl show -t ${{taskname}}
+  except:
+    msg1: JobStatus.FINISHED
+- casename: hpo_gridsearch_search-ctl rm -t task
+  comment: rm task
+  casestep:
+    step1: search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    step2: tmux(search-ctl rm -t ${{taskname}})
+    step3: wait(30s)
+    step4: tmux(y)
+    step5: wait(60s)
+    step6: search-ctl show -t ${{taskname}}
+  except:
+    msg1: ${{taskname}} is not exists
+- casename: hpo_gridsearch_search-ctl show all task
+  comment: show all tasks
+  casestep:
+    step1: search-ctl show
+  except:
+    msg1: All tasks
+    msg2: finished
+- casename: hpo_gridsearch_search-ctl show-scalar
+  comment: search-ctl show-scalar
+  casestep:
+    step1: tmux(search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml)
+    step2: wait(300s)
+    step3: search-ctl show-scalar -t ${{taskname}} -rt 1
+  except:
+    msg1: Test Acc
+- casename: hpo_gridsearch_MOCK_PAVI0 search-run
+  comment: MOCK_PAVI0 search-run
+  casestep:
+    step1: MOCK_PAVI=0 search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    step2: MOCK_PAVI=0 search-ctl show -t ${{taskname}}
+  except:
+    msg1: JobStatus.FINISHED
+- casename: hpo_gridsearch_MOCK_PAVI1 search-run
+  comment: MOCK_PAVI1 search-run
+  casestep:
+    step1: MOCK_PAVI=1 search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    step2: MOCK_PAVI=1 search-ctl show -t ${{taskname}}
+  except:
+    msg1: JobStatus.FINISHED
+    msg2: mock_compare_url
+- casename: hpo_gridsearch_MOCK_PAVI2 search-run
+  comment: MOCK_PAVI2 search-run
+  casestep:
+    step1: MOCK_PAVI=2 search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    step2: MOCK_PAVI=2 search-ctl show -t ${{taskname}}
+  except:
+    msg1: JobStatus.FINISHED
+    msg2: mock_compare_url
+- casename: hpo_gridsearch_MOCK_PAVI3 search-run
+  comment: MOCK_PAVI3 search-run
+  casestep:
+    step1: MOCK_PAVI=3 search-run -t ${{taskname}} ../configs/hpo/gridsearch/search_config.yaml
+    step2: MOCK_PAVI=3 search-ctl show -t ${{taskname}}
+  except:
+    msg1: JobStatus.FINISHED
+    msg2: mock_compare_url
+case_kd:
+- casename: kd_ab_loss_pretrain an epoch
+  comment: train an epoch
+  casestep:
+    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/ab_loss/classification/resnet/abloss_res18_cifar10_distillation_8xb16_teacher_res50_backbone_pretrain.py
+      work_dirs/abloss_res18_cifar10_distillation_8xb16_teacher_res50_backbone_pretrain/
+      --cfg-options runner.max_epochs=1
+  except:
+    msg1: accuracy_top-1
+    msg2: accuracy_top-5
+- casename: kd_ab_loss_train an epoch
+  comment: train an epoch
+  casestep:
+    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/ab_loss/classification/resnet/abloss_res18_cifar10_distillation_8xb16_teacher_res50_head_train.py
+      work_dirs/abloss_res18_cifar10_distillation_8xb16_teacher_res50_head_train/
+      --cfg-options runner.max_epochs=1
+  except:
+    msg1: mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+- casename: kd_fitnet_train a epoch
+  comment: train a epoch
+  casestep:
+    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/fitnet/classification/fitnet_res18_cifar10_distillation_8xb16_teacher_res50_s4_mimic.py
+      work_dirs/fitnet_res18_cifar10_distillation_8xb16_teacher_res50_s4_mimic/ --cfg-options
+      runner.max_epochs=1
+  except:
+    msg1: mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+- casename: kd_factor_transfer_pretrain an epoch
+  comment: pretrain an epoch
+  casestep:
+    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/factor_transfer/classification/resnet/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_pretrain.py
+      work_dirs/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_pretrain/
+      --cfg-options runner.max_epochs=1
+  except:
+    msg1: accuracy_top-1
+    msg2: accuracy_top-5
+- casename: kd_factor_transfer_train an epoch
+  comment: train an epoch
+  casestep:
+    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/factor_transfer/classification/resnet/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_train.py
+      work_dirs/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_train/
+      --cfg-options runner.max_epochs=1
+  except:
+    msg1: mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+- casename: kd_crd_loss_train a epoch
+  comment: train a epoch
+  casestep:
+    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev crd configs/kd/crd_loss/classification/resnet/crdloss_res18_cifar10_distillation_8xb16_teacher_res50_dimout128.py
+      work_dirs/crdloss_res18_cifar10_distillation_8xb16_teacher_res50_dimout128/
+      --cfg-options runner.max_epochs=1
+  except:
+    msg1: mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+- casename: kd_rkd_train a epoch
+  comment: train a epoch
+  casestep:
+    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/rkd/classification/resnet/rkdd_rkda_res18_cifar10_distillation_8xb16_teacher_res50_neck_mimic.py
+      work_dirs/rkdd_rkda_res18_cifar10_distillation_8xb16_teacher_res50_neck_mimic
+      --cfg-options runner.max_epochs=1
+  except:
+    msg1: mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+- casename: kd_ofd_train a epoch
+  comment: train a epoch
+  casestep:
+    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/ofd/classification/resnet/ofdloss_res18_cifar10_distillation_8xb16_teacher_res50_train.py
+      work_dirs/ofdloss_res18_cifar10_distillation_8xb16_teacher_res50_train --cfg-options
+      runner.max_epochs=1
+  except:
+    msg1: mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.
+case_nas:
+- casename: nas_bignas_bignas_supernet_train
+  comment: bignas_supernet_train
+  casestep:
+    step1: sed -i "s/max_epochs=360/max_epochs=1/g" ./configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
+    step2: sed -i "s/wangshiguang/sunyue1/g" ./configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
+    step3: sed -i "s/samples_per_gpu=64/samples_per_gpu=32/g" ./configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
+    step4: sed -i "s#/mnt/lustre/share_data/wangshiguang/train_4k.txt#data/imagenet/meta/train.txt#g"
+      ./configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
+    step5: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
+      work_dirs/bignas_supernet_train
+    step6: wait(180s)
+  except:
+    msg1: Saving checkpoint at 1 epochs
+- casename: nas_bignas_bignas_supernet_search
+  comment: bignas_supernet_search
+  casestep:
+    step1: sed -i "s/candidate_pool_size=256/candidate_pool_size=2/g" ./configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py
+    step2: sed -i "s/max_epoch=20/max_epoch=1/g" ./configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py
+    step3: sed -i "s#/mnt/lustre/share_data/wangshiguang/train_4k.txt#data/imagenet/meta/train.txt#g"
+      ./configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py
+    step4: GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev ${{casename}} configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py
+      work_dirs/bignas_supernet_train/latest.pth --work-dir work_dirs/bignas_search
+    step5: wait(180s)
+  except:
+    msg1: Search finished
+- casename: nas_bignas_bignas_supernet_test
+  comment: bignas_supernet_test
+  casestep:
+    step1: sed -i "s/max_epoch=360/max_epoch=1/g" ./configs/nas/bignas/bignas_mobilenetv3_large_subnet_8xb128_flops600M.py
+    step2: setarg(${{EXPORT_YAML}},find ./work_dirs/bignas_search -name "final_subnet_step5_*.yaml")
+    step3: setarg(${{EXPORT_PTH}},find ./work_dirs/bignas_search -name "final_subnet_step5_*.pth")
+    step4: GPUS=4 GPUS_PER_NODE=4 tools/slurm_test.sh pat_dev ${{casename}}  configs/nas/bignas/bignas_mobilenetv3_large_subnet_16xb128_flops600M.py
+      ${{EXPORT_PTH}} --work-dir work_dirs/xxx_test --eval accuracy --cfg-options
+      algorithm.mutable_cfg=${{EXPORT_YAML}}
+    step5: wait(180s)
+  except:
+    msg1: accuracy_top-1
+- casename: nas_nsganet_nsganet_supernet_train
+  comment: nsganet_supernet_train
+  casestep:
+    step1: sed -i "s/max_epochs=100/max_epochs=1/g" ./configs/nas/nsganet/imagenet/nsganet_supernet_8xb256.py
+    step2: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/nsganet/imagenet/nsganet_supernet_8xb256.py
+      work_dirs/nsganet_supernet
+    step3: wait(180s)
+  except:
+    msg1: Saving checkpoint
+- casename: nas_darts_darts_supernet_train
+  comment: darts_supernet_train
+  casestep:
+    step1: sed -i "s/max_epochs=50/max_epochs=1/g" ./configs/nas/darts/cifar10_bs16_supernet.py
+    step2: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/darts/darts_cellbase_cifar10_supernet_1xb64.py
+      work_dirs/darts_supernet_train
+    step3: wait(180s)
+  except:
+    msg1: Search finished
+- casename: nas_darts_darts_supernet_test
+  comment: darts_supernet_test
+  casestep:
+    step1: sed -i "s/max_epoch=600/max_epoch=1/g" configs/nas/darts/cifar10_bs96_subnet.py
+    step2: setarg(${{EXPORT_YAML}},find work_dirs/darts_supernet_train -name "*.yaml")
+    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_test.sh pat_dev ${{casename}} configs/nas/darts/darts_cellbase_cifar10_subnet_1xb96.py
+      work_dirs/darts_supernet_train/latest.pth --work-dir work_dirs/xxx_test --eval
+      accuracy --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
+    step4: wait(180s)
+  except:
+    msg1: accuracy_top-1
+    msg2: accuracy_top-5
+- casename: nas_detnas_detnas_supernet_train
+  comment: detnas_supernet_train
+  casestep:
+    step1: sed -i "s/max_iters=300000/max_iters=100/g" ./configs/nas/detnas/detnas_supernet_shufflenetv2_8xb128_in1k.py
+    step2: sed -i "s/dict(interval=1000)/dict(interval=100)/g" ./configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py
+    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/detnas/detnas_supernet_shufflenetv2_8xb128_in1k.py
+      work_dirs/detnas_supernet_train
+    step4: wait(180s)
+  except:
+    msg1: Saving checkpoint
+- casename: nas_detnas_detnas_supernet_finetune
+  comment: detnas_supernet_finetune
+  casestep:
+    step1: setarg(${{EXPORT_PTH}},ls | grep work_dirs/detnas_supernet_train/*.pth)
+    step2: sed -i "s/max_epochs=12/max_epochs=1/g" ./configs/_base_/schedules/mmdet/schedule_1x.py
+    step3: sed -i "s/samples_per_gpu=2/samples_per_gpu=1/g" ./configs/_base_/datasets/mmdet/coco_detection.py
+    step4: sed -i "s/dict(type='LoadImageFromFile', file_client_args=file_client_args),/dict(type='LoadImageFromFile'),/g"
+      ./configs/_base_/datasets/mmdet/detnas_coco_detection.py
+    step5: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/detnas/detnas_supernet_frcnn_shufflenetv2_fpn_1x_coco.py
+      work_dirs/detnas_supernet_finetune --cfg-options load_from=work_dirs/detnas_supernet_train/latest.pth
+    step6: wait(180s)
+  except:
+    msg1: bbox_mAP
+- casename: nas_detnas_detnas_supernet_search
+  comment: detnas_supernet_search
+  casestep:
+    step1: sed -i "s/candidate_pool_size=50/candidate_pool_size=5/g" ./configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py
+    step2: sed -i "s/candidate_top_k=10/candidate_top_k=2/g" ./configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py
+    step3: sed -i "s/max_epoch=20/max_epoch=2/g" ./configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py
+    step4: sed -i "s/num_mutation=25/num_mutation=2/g" ./configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py
+    step5: sed -i "s/num_crossover=25/num_crossover=3/g" ./configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py
+    step6: GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev ${{casename}} configs/nas/detnas/detnas_evolution_search_frcnn_shufflenetv2_fpn_coco.py  work_dirs/detnas_supernet_finetune/latest.pth
+      --work-dir work_dirs/detnas_search
+    step7: wait(180s)
+  except:
+    msg1: Search finished
+
+- casename: nas_detnas_detnas_subnet_retrain
+  required: nas_detnas_detnas_supernet_finetune,nas_detnas_detnas_supernet_search
+  comment: detnas_subnet_retrain
+  casestep:
+    step6: setarg(${{EXPORT_YAML}},find ./work_dirs/spos_search -name "*.yaml")
+    step7: sed -i "s/max_iters=300000/max_iters=100/g" ./configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py
+    step8: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/detnas/detnas_subnet_shufflenetv2_8xb128_in1k.py
+      work_dirs/detnas_retrain --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
+    step9: wait(180s)
+  except:
+    msg1: Saving checkpoint
+
+- casename: nas_detnas_detnas_subnet_finetune
+  comment: detnas_subnet_finetune
+  casestep:
+    step1: setarg(${{EXPORT_YAML}},find ./work_dirs/spos_search -name "*.yaml")
+    step2: sed -i "s/max_epochs=12/max_epochs=1/g" ./configs/nas/detnas/detnas_subnet_frcnn_shufflenetv2_fpn_1x_coco.py
+    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/detnas/detnas_subnet_frcnn_shufflenetv2_fpn_1x_coco.py
+      work_dirs/detnas_subnet_finetune --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
+      load_from=work_dirs/detnas_retrain/latest.pth
+    step4: wait(180s)
+  except:
+    msg1: Saving checkpoint
+- casename: nas_zennas_zennas_supernet_search
+  comment: zennas_supernet_search
+  casestep:
+    step1: sed -i "s/num_crossover=128/num_crossover=3/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+    step2: sed -i "s/candidate_pool_size=256/candidate_pool_size=5/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+    step3: sed -i "s/candidate_top_k=256/candidate_top_k=2/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+    step4: sed -i "s/max_epoch=20/max_epoch=2/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+    step5: sed -i "s/num_mutation=128/num_mutation=2/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+    step6: GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev ${{casename}} configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+      data/supernet_checkpoint.pth --work-dir work_dirs/zennas_supernet_search
+    step7: wait(180s)
+  except:
+    msg1: Search finished
+- casename: nas_zennas_zennas_supernet_retrain
+  comment: zennas_supernet_retrain
+  casestep:
+    step1: sed -i "s#efficientnet-b3_8xb32_in1k_timm_84_01_v3.pth#/mnt/lustre/share_data/huangpengsheng/gml_data/gml_checkpoint/efficientnet-b3_8xb32_in1k_timm_84_01_v3.pth#g"
+      configs/nas/zennas/EXP_3_E3tozennet0.1_distillation_8xb64_teacher_mimic_ns_connnector.py
+    step2: sed -i "s/max_epochs=480/max_epochs=1/g" configs/nas/zennas/EXP_3_E3tozennet0.1_distillation_8xb64_teacher_mimic_ns_connnector.py
+    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/zennas/EXP_3_E3tozennet0.1_distillation_8xb64_teacher_mimic_ns_connnector.py
+      work_dirs/${{casename}}
+    step4: wait(180s)
+  except:
+    msg1: Saving checkpoint
+- casename: nas_spos_spos_supernet_train
+  comment: spos_supernet_train
+  casestep:
+    step1: sed -i "s/max_iters=150000/max_iters=100/g" ./configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py
+    step2: sed -i "s/dict(interval=1000)/dict(interval=100)/g" ./configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py
+    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py
+      work_dirs/spos_supernet
+    step4: wait(180s)
+  except:
+    msg1: Saving checkpoint
+- casename: nas_spos_spos_supernet_search
+  comment: spos_supernet_search
+  casestep:
+    step1: setarg(${{EXPORT_PTH}},find ./ -name "latest.pth")
+    step2: sed -i "s/candidate_pool_size=50/candidate_pool_size=5/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+    step3: sed -i "s/candidate_top_k=10/candidate_top_k=2/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+    step4: sed -i "s/max_epoch=20/max_epoch=2/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+    step5: sed -i "s/candidate_pool_size=50/candidate_pool_size=5/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+    step6: sed -i "s/num_mutation=25/num_mutation=2/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+    step7: sed -i "s/num_crossover=25/num_crossover=3/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+    step8: GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+      work_dirs/spos_supernet/latest.pth --work-dir work_dirs/spos_search
+    step9: wait(180s)
+  except:
+    msg1: Search finished
+- casename: nas_spos_spos_subnet_retrain
+  comment: spos_subnet_retrain
+  casestep:
+    step1: setarg(${{EXPORT_YAML}},find ./work_dirs/spos_search -name "*.yaml")
+    step2: sed -i "s/max_iters=300000/max_iters=100/g" ./configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py
+    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py
+      work_dirs/spos_retrain --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
+    step4: wait(180s)
+  except:
+    msg1: Saving checkpoint
+- casename: nas_spos_spos_subnet_test
+  comment: spos_subnet_test
+  casestep:
+    step1: setarg(${{EXPORT_PTH}},find ./work_dirs/spos_retrain -name "latest.pth")
+    step2: setarg(${{EXPORT_YAML}},find ./work_dirs/spos_search -name "*.yaml")
+    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_test.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py
+      ${{EXPORT_PTH}} --work-dir work_dirs/spos_test --eval accuracy --cfg-options
+      algorithm.mutable_cfg=${{EXPORT_YAML}}
+    step4: wait(180s)
+  except:
+    msg1: accuracy_top-1
+>>>>>>> reconstruct-code

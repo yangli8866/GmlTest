@@ -1,0 +1,4 @@
+pytest~=7.0.1
+PyYAML~=5.4.1
+robotframework-sshlibrary~=3.8.0
+allure-pytest~=2.9.45
