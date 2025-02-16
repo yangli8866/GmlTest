@@ -24,8 +24,8 @@ class SSHClient:
     def __init__(self):
         self.ssh = SSH()
 
-    # 连接：先login到跳板机，然后write 【ssh platform.tester.s.01@10.5.36.31】，进入集群机器（因为跳板机可以免密登录到集群）
-    def connnect(self,ip0='10.121.2.237', user0='sensetime', password0='jgbPWYGx1Lk9"c?b*1oW'):
+    # 连接：先login到跳板机，然后write 【ssh ***@10.5.36.31】，进入集群机器（因为跳板机可以免密登录到集群）
+    def connnect(self,ip0='10.121.*.237', user0='***', password0='***'):
         user1 = run_configs[1]['login_ursername']
         ip1 = run_configs[3]['run_cluster']
         self.ssh.open_connection(ip0)
