@@ -3,7 +3,7 @@
 from SSHLibrary.library import SSHLibrary as SSH
 import time
 import logging
-from tool import run_configs
+from main import run_configs
 
 logging.basicConfig(level=logging.DEBUG)
 logging.getLogger().setLevel(logging.INFO)
