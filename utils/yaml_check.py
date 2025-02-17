@@ -1,6 +1,5 @@
-import logging
 import yaml
-from gtest.utils.read_yaml import ReadYaml
+from utils import ReadYaml
 
 
 class YamlCheck:

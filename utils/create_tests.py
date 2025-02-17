@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import time
-import os
-from gtest.utils.read_yaml import *
 
 
 class CreateTestFile:

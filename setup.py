@@ -13,14 +13,14 @@ def readme():
 
 
 def get_version():
-    version_file = 'gtest/version.py'
+    version_file = 'tools/version.py'
     with open(version_file, 'r', encoding='utf-8') as f:
         exec(compile(f.read(), version_file, 'exec'))
     return locals()['__version__']
 
 
 setup(
-    name='gtest',
+    name='tools',
     version=get_version(),
     description='general test case yaml parser',
     long_description=readme(),

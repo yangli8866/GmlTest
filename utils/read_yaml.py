@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 class ReadYaml:
-    current_path = os.path.abspath('.')
+    current_path = os.path.abspath('')
     father_tree_yaml = []
 
 

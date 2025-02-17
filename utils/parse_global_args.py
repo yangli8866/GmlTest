@@ -2,7 +2,7 @@
 import time
 import re
 # from util import Utils
-from gtest.utils.util import Utils
+from utils import Utils
 
 
 class ParseGlobal:

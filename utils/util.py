@@ -2,8 +2,6 @@
 import time
 import logging
 import os
-import json
-from gtest.utils.ssh_clinet import SSHClient
 
 logging.basicConfig(level=logging.ERROR)
 

@@ -1,11 +1,9 @@
 # -*- coding:utf-8 -*-
 import pytest
-import os
 import time
 import allure
 
-from gtest.utils.util import Utils
-from gtest.utils import ssh_clinet
+from utils import Utils, ssh_clinet
 
 ssh = ssh_clinet.SSHClient()
 
