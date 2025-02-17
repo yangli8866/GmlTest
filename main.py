@@ -1,7 +1,7 @@
 import sys
 
 from utils.create_tests import CreateTestFile
-from utils.yaml_check import *
+from common.yaml_check import *
 import os
 
 logging.basicConfig(level=logging.ERROR)
@@ -67,7 +67,7 @@ def main():
     if not os.path.exists(setup_test_file_path):
         os.mknod(setup_test_file_path)
     with open(setup_test_file_path, 'w') as f:
-        f.write("# -*- coding:utf-8 -*-\nimport pytest\nimport os\nimport time\nimport allure\n\n\nfrom tools.utils.util import Utils\nfrom tools.utils import ssh_clinet\n\nssh = ssh_clinet.SSHClient()")
+        f.write("# -*- coding:utf-8 -*-\nimport pytest\nimport os\nimport time\nimport allure\n\n\nfrom common.utils.util import Utils\nfrom common.utils import ssh_clinet\n\nssh = ssh_clinet.SSHClient()")
     creater = CreateTestFile()
     yaml_config = r.read_yaml(merged_yaml_path)
     creater.write_test_file(yaml_config, tests_path, setup_test_file_path,run_configs)

@@ -13,14 +13,14 @@ def readme():
 
 
 def get_version():
-    version_file = 'tools/version.py'
+    version_file = 'common/version.py'
     with open(version_file, 'r', encoding='utf-8') as f:
         exec(compile(f.read(), version_file, 'exec'))
     return locals()['__version__']
 
 
 setup(
-    name='tools',
+    name='common',
     version=get_version(),
     description='general test case yaml parser',
     long_description=readme(),
@@ -30,7 +30,7 @@ setup(
     keywords=
     'daily build',
     url='https://***/platform/PlatformTest/gmltest.git',
-    packages=find_packages(exclude=('configs', 'tools', 'demo')),
+    packages=find_packages(exclude=('configs', 'common', 'demo')),
     classifiers=[
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: Apache Software License',

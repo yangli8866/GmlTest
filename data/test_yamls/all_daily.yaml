@@ -169,7 +169,7 @@ case_kd:
 - casename: kd_ab_loss_pretrain an epoch
   comment: train an epoch
   casestep:
-    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/ab_loss/classification/resnet/abloss_res18_cifar10_distillation_8xb16_teacher_res50_backbone_pretrain.py
+    step1: GPUS=1 GPUS_PER_NODE=1 bash common/slurm_train.sh pat_dev fitnet configs/kd/ab_loss/classification/resnet/abloss_res18_cifar10_distillation_8xb16_teacher_res50_backbone_pretrain.py
       work_dirs/abloss_res18_cifar10_distillation_8xb16_teacher_res50_backbone_pretrain/
       --cfg-options runner.max_epochs=1
   except:
@@ -178,7 +178,7 @@ case_kd:
 - casename: kd_ab_loss_train an epoch
   comment: train an epoch
   casestep:
-    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/ab_loss/classification/resnet/abloss_res18_cifar10_distillation_8xb16_teacher_res50_head_train.py
+    step1: GPUS=1 GPUS_PER_NODE=1 bash common/slurm_train.sh pat_dev fitnet configs/kd/ab_loss/classification/resnet/abloss_res18_cifar10_distillation_8xb16_teacher_res50_head_train.py
       work_dirs/abloss_res18_cifar10_distillation_8xb16_teacher_res50_head_train/
       --cfg-options runner.max_epochs=1
   except:
@@ -186,7 +186,7 @@ case_kd:
 - casename: kd_crd_loss_train a epoch
   comment: train a epoch
   casestep:
-    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev crd configs/kd/crd_loss/classification/resnet/crdloss_res18_cifar10_distillation_8xb16_teacher_res50_dimout128.py
+    step1: GPUS=1 GPUS_PER_NODE=1 bash common/slurm_train.sh pat_dev crd configs/kd/crd_loss/classification/resnet/crdloss_res18_cifar10_distillation_8xb16_teacher_res50_dimout128.py
       work_dirs/crdloss_res18_cifar10_distillation_8xb16_teacher_res50_dimout128/
       --cfg-options runner.max_epochs=1
   except:
@@ -194,7 +194,7 @@ case_kd:
 - casename: kd_factor_transfer_pretrain an epoch
   comment: pretrain an epoch
   casestep:
-    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/factor_transfer/classification/resnet/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_pretrain.py
+    step1: GPUS=1 GPUS_PER_NODE=1 bash common/slurm_train.sh pat_dev fitnet configs/kd/factor_transfer/classification/resnet/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_pretrain.py
       work_dirs/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_pretrain/
       --cfg-options runner.max_epochs=1
   except:
@@ -203,7 +203,7 @@ case_kd:
 - casename: kd_factor_transfer_train an epoch
   comment: train an epoch
   casestep:
-    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/factor_transfer/classification/resnet/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_train.py
+    step1: GPUS=1 GPUS_PER_NODE=1 bash common/slurm_train.sh pat_dev fitnet configs/kd/factor_transfer/classification/resnet/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_train.py
       work_dirs/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_train/
       --cfg-options runner.max_epochs=1
   except:
@@ -211,7 +211,7 @@ case_kd:
 - casename: kd_fitnet_train a epoch
   comment: train a epoch
   casestep:
-    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/fitnet/classification/fitnet_res18_cifar10_distillation_8xb16_teacher_res50_s4_mimic.py
+    step1: GPUS=1 GPUS_PER_NODE=1 bash common/slurm_train.sh pat_dev fitnet configs/kd/fitnet/classification/fitnet_res18_cifar10_distillation_8xb16_teacher_res50_s4_mimic.py
       work_dirs/fitnet_res18_cifar10_distillation_8xb16_teacher_res50_s4_mimic/ --cfg-options
       runner.max_epochs=1
   except:
@@ -219,7 +219,7 @@ case_kd:
 - casename: kd_ofd_train a epoch
   comment: train a epoch
   casestep:
-    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/ofd/classification/resnet/ofdloss_res18_cifar10_distillation_8xb16_teacher_res50_train.py
+    step1: GPUS=1 GPUS_PER_NODE=1 bash common/slurm_train.sh pat_dev fitnet configs/kd/ofd/classification/resnet/ofdloss_res18_cifar10_distillation_8xb16_teacher_res50_train.py
       work_dirs/ofdloss_res18_cifar10_distillation_8xb16_teacher_res50_train --cfg-options
       runner.max_epochs=1
   except:
@@ -227,7 +227,7 @@ case_kd:
 - casename: kd_rkd_train a epoch
   comment: train a epoch
   casestep:
-    step1: GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/rkd/classification/resnet/rkdd_rkda_res18_cifar10_distillation_8xb16_teacher_res50_neck_mimic.py
+    step1: GPUS=1 GPUS_PER_NODE=1 bash common/slurm_train.sh pat_dev fitnet configs/kd/rkd/classification/resnet/rkdd_rkda_res18_cifar10_distillation_8xb16_teacher_res50_neck_mimic.py
       work_dirs/rkdd_rkda_res18_cifar10_distillation_8xb16_teacher_res50_neck_mimic
       --cfg-options runner.max_epochs=1
   except:
@@ -237,7 +237,7 @@ case_nas:
   comment: darts_supernet_train
   casestep:
     step1: sed -i "s/max_epochs=50/max_epochs=1/g" ./configs/nas/darts/cifar10_bs16_supernet.py
-    step2: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/darts/darts_cellbase_cifar10_supernet_1xb64.py
+    step2: GPUS=4 GPUS_PER_NODE=4 common/slurm_train.sh pat_dev ${{casename}} configs/nas/darts/darts_cellbase_cifar10_supernet_1xb64.py
       work_dirs/darts_supernet_train
     step3: wait(180s)
   except:
@@ -247,7 +247,7 @@ case_nas:
   casestep:
     step1: sed -i "s/max_epoch=600/max_epoch=1/g" configs/nas/darts/cifar10_bs96_subnet.py
     step2: setarg(${{EXPORT_YAML}},find work_dirs/darts_supernet_train -name "*.yaml")
-    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_test.sh pat_dev ${{casename}} configs/nas/darts/darts_cellbase_cifar10_subnet_1xb96.py
+    step3: GPUS=4 GPUS_PER_NODE=4 common/slurm_test.sh pat_dev ${{casename}} configs/nas/darts/darts_cellbase_cifar10_subnet_1xb96.py
       work_dirs/darts_supernet_train/latest.pth --work-dir work_dirs/xxx_test --eval
       accuracy --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
     step4: wait(180s)
@@ -261,7 +261,7 @@ case_nas:
     step2: sed -i "s/samples_per_gpu=64/samples_per_gpu=32/g" ./configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
     step3: sed -i "s#/mnt/lustre/share_data/wangshiguang/train_4k.txt#data/gml_unique/imagenet-1k/meta/train.txt#g"
       ./configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
-    step4: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
+    step4: GPUS=4 GPUS_PER_NODE=4 common/slurm_train.sh pat_dev ${{casename}} configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py
       work_dirs/bignas_supernet_train
     step5: wait(180s)
   except:
@@ -275,7 +275,7 @@ case_nas:
       ./configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py
     step4: sed -i "s#data_prefix='data/imagenet/#data_prefix='s3://PAT/datasets/project_data/gml_data/gml_unique/imagenet_1k/#g"
       ./configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py
-    step5: GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev ${{casename}} configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py
+    step5: GPUS=4 GPUS_PER_NODE=4 common/slurm_search.sh pat_dev ${{casename}} configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py
       work_dirs/bignas_supernet_train/latest.pth --work-dir work_dirs/bignas_search
     step6: wait(180s)
   except:
@@ -286,7 +286,7 @@ case_nas:
     step1: sed -i "s/max_epoch=360/max_epoch=1/g" ./configs/nas/bignas/bignas_mobilenetv3_large_subnet_8xb128_flops600M.py
     step2: setarg(${{EXPORT_YAML}},find ./work_dirs/bignas_search -name "final_subnet_step5*.yaml")
     step3: setarg(${{EXPORT_PTH}},find ./work_dirs/bignas_search -name "final_subnet_step5*.pth")
-    step4: GPUS=4 GPUS_PER_NODE=4 tools/slurm_test.sh pat_dev ${{casename}}  configs/nas/bignas/bignas_mobilenetv3_large_subnet_16xb128_flops600M.py
+    step4: GPUS=4 GPUS_PER_NODE=4 common/slurm_test.sh pat_dev ${{casename}}  configs/nas/bignas/bignas_mobilenetv3_large_subnet_16xb128_flops600M.py
       ${{EXPORT_PTH}} --work-dir work_dirs/xxx_test --eval accuracy --cfg-options
       algorithm.mutable_cfg=${{EXPORT_YAML}}
     step5: wait(180s)
@@ -297,7 +297,7 @@ case_nas:
   casestep:
     step1: sed -i "s/max_iters=150000/max_iters=100/g" ./configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py
     step2: sed -i "s/dict(interval=1000)/dict(interval=100)/g" ./configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py
-    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py
+    step3: GPUS=4 GPUS_PER_NODE=4 common/slurm_train.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py
       work_dirs/spos_supernet
     step4: wait(180s)
   except:
@@ -312,7 +312,7 @@ case_nas:
     step5: sed -i "s/candidate_pool_size=50/candidate_pool_size=5/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
     step6: sed -i "s/num_mutation=25/num_mutation=2/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
     step7: sed -i "s/num_crossover=25/num_crossover=3/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
-    step8: GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
+    step8: GPUS=4 GPUS_PER_NODE=4 common/slurm_search.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py
       work_dirs/spos_supernet/latest.pth --work-dir work_dirs/spos_search
     step9: wait(180s)
   except:
@@ -322,7 +322,7 @@ case_nas:
   casestep:
     step1: setarg(${{EXPORT_YAML}},find ./work_dirs/spos_search -name "*.yaml")
     step2: sed -i "s/max_iters=300000/max_iters=100/g" ./configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py
-    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py
+    step3: GPUS=4 GPUS_PER_NODE=4 common/slurm_train.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py
       work_dirs/spos_retrain --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
     step4: wait(180s)
   except:
@@ -332,7 +332,7 @@ case_nas:
   casestep:
     step1: setarg(${{EXPORT_PTH}},find ./work_dirs/spos_retrain -name "latest.pth")
     step2: setarg(${{EXPORT_YAML}},find ./work_dirs/spos_search -name "*.yaml")
-    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_test.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py
+    step3: GPUS=4 GPUS_PER_NODE=4 common/slurm_test.sh pat_dev ${{casename}} configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py
       ${{EXPORT_PTH}} --work-dir work_dirs/spos_test --eval accuracy --cfg-options
       algorithm.mutable_cfg=${{EXPORT_YAML}}
     step4: wait(180s)
@@ -346,7 +346,7 @@ case_nas:
     step3: sed -i "s/candidate_top_k=256/candidate_top_k=2/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
     step4: sed -i "s/max_epoch=20/max_epoch=2/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
     step5: sed -i "s/num_mutation=128/num_mutation=2/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
-    step6: GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev ${{casename}} configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
+    step6: GPUS=4 GPUS_PER_NODE=4 common/slurm_search.sh pat_dev ${{casename}} configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py
       data/gml_checkpoint/0310_bignas_latest.pth --work-dir work_dirs/zennas_supernet_search
     step7: wait(180s)
   except:
@@ -357,7 +357,7 @@ case_nas:
     step1: sed -i "s#efficientnet-b3_8xb32_in1k_timm_84_01_v3.pth#~/gml_daily/gml/data/gml_checkpoint/efficientnet-b3_8xb32_in1k_timm_84_01_v3.pth#g"
       configs/nas/zennas/EXP_3_E3tozennet0.1_distillation_8xb64_teacher_mimic_ns_connnector.py
     step2: sed -i "s/max_epochs=480/max_epochs=1/g" configs/nas/zennas/EXP_3_E3tozennet0.1_distillation_8xb64_teacher_mimic_ns_connnector.py
-    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/zennas/EXP_3_E3tozennet0.1_distillation_8xb64_teacher_mimic_ns_connnector.py
+    step3: GPUS=4 GPUS_PER_NODE=4 common/slurm_train.sh pat_dev ${{casename}} configs/nas/zennas/EXP_3_E3tozennet0.1_distillation_8xb64_teacher_mimic_ns_connnector.py
       work_dirs/${{casename}}
     step4: wait(180s)
   except:
@@ -368,7 +368,7 @@ case_nas:
     step1: sed -i "s/max_epochs=120/max_epochs=2/g" ./configs/nas/cream/cream_mobilenetv3_supernet_8xb128_max500M.py
     step2: sed -i "s/meta_sta_epoch=20/meta_sta_epoch=-1/g" ./configs/nas/cream/cream_mobilenetv3_supernet_8xb128_max500M.py
     step3: sed -i "s/samples_per_gpu=128/samples_per_gpu=64/g" ./configs/_base_/datasets/mmcls/imagenet_bs128_cream_224.py
-    step4: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/cream/cream_mobilenetv3_supernet_8xb128_max500M.py
+    step4: GPUS=4 GPUS_PER_NODE=4 common/slurm_train.sh pat_dev ${{casename}} configs/nas/cream/cream_mobilenetv3_supernet_8xb128_max500M.py
       work_dirs/cream_supernet
     step5: wait(180s)
   except:
@@ -379,7 +379,7 @@ case_nas:
     step1: setarg(${{EXPORT_YAML}},find ./work_dirs/cream_supernet -name "*.yaml")
     step2: sed -i "s/max_epochs=530/max_epochs=2/g" ./configs/nas/cream/cream_mobilenetv3_subnet_16xb128_max500M.py
     step3: sed -i "s/samples_per_gpu=128/samples_per_gpu=64/g" ./configs/_base_/datasets/mmcls/imagenet_bs128_cream_224.py
-    step4: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} configs/nas/cream/cream_mobilenetv3_subnet_16xb128_max500M.py
+    step4: GPUS=4 GPUS_PER_NODE=4 common/slurm_train.sh pat_dev ${{casename}} configs/nas/cream/cream_mobilenetv3_subnet_16xb128_max500M.py
       work_dirs/cream_retrain --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
     step5: wait(180s)
   except:
@@ -389,7 +389,7 @@ case_nas:
   casestep:
     step1: setarg(${{EXPORT_PTH}},find ./work_dirs/cream_retrain -name "latest.pth")
     step2: setarg(${{EXPORT_YAML}},find ./work_dirs/cream_supernet -name "*.yaml")
-    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_test.sh pat_dev ${{casename}} configs/nas/cream/cream_mobilenetv3_subnet_16xb128_max500M.py
+    step3: GPUS=4 GPUS_PER_NODE=4 common/slurm_test.sh pat_dev ${{casename}} configs/nas/cream/cream_mobilenetv3_subnet_16xb128_max500M.py
       ${{EXPORT_PTH}} --eval accuracy --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}}
     step4: wait(180s)
   except:
@@ -399,7 +399,7 @@ case_nas:
   casestep:
     step1: sed -i "s/max_epochs=1/max_epochs=2/g" ./configs/nas/nsganet/imagenet/nsganet_supernet_8xb256.py
     step2: setarg(${{SUPERNET_FILE}},find ./configs/nas/nsganet/imagenet/ -name "nsganet_supernet_*.py")
-    step3: GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev ${{casename}} ${{SUPERNET_FILE}}
+    step3: GPUS=4 GPUS_PER_NODE=4 common/slurm_train.sh pat_dev ${{casename}} ${{SUPERNET_FILE}}
       work_dirs/nsganet_supernet
     step4: wait(180s)
   except:
@@ -413,7 +413,7 @@ case_pruning:
     step3: sed -i "s/distill_iter=2000/distill_iter=10/g" ./configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_f150.py
     step4: sed -i "s/arch_start_train=None/arch_start_train=2000/g" ./configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_f150.py
     step5: sed -i "s/samples_per_gpu=256/samples_per_gpu=128/g" ./configs/_base_/datasets/mmcls/imagenet_bs256_autoslim.py
-    step6: GPUS=1 GPUS_PER_NODE=1 tools/slurm_train.sh pat_dev ${{casename}} configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_f150.py
+    step6: GPUS=1 GPUS_PER_NODE=1 common/slurm_train.sh pat_dev ${{casename}} configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_f150.py
       work_dirs/dmcp_mbv2_train
   except:
     msg1: Saving checkpoint at 1 epochs
@@ -423,7 +423,7 @@ case_pruning:
     step1: sed -i "s/max_epochs=60/max_epochs=1/g" ./configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_retrain.py
     step2: sed -i "s#/DMCP_WORKDIR/model_sample/subnet.npy#work_dirs/dmcp_mbv2_train/model_sample/subnet_1.npy#g"
       ./configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_retrain.py
-    step3: GPUS=1 GPUS_PER_NODE=1 tools/slurm_train.sh pat_dev ${{casename}} configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_retrain.py
+    step3: GPUS=1 GPUS_PER_NODE=1 common/slurm_train.sh pat_dev ${{casename}} configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_retrain.py
       work_dirs/dmcp_mbv2_retrain
   except:
     msg1: Retrain finished
@@ -431,7 +431,7 @@ case_pruning:
   comment: dcff_prune_resnet50_for_1_epoch
   casestep:
     step1: sed -i "s/max_epochs=120/max_epochs=1/g" ./configs/pruning/dcff/classification/dcff_resnet50_imagenet_8xb32.py
-    step2: GPUS=1 GPUS_PER_NODE=1 tools/slurm_train.sh pat_dev ${{casename}} configs/pruning/dcff/classification/dcff_resnet50_imagenet_8xb32.py
+    step2: GPUS=1 GPUS_PER_NODE=1 common/slurm_train.sh pat_dev ${{casename}} configs/pruning/dcff/classification/dcff_resnet50_imagenet_8xb32.py
       work_dirs/dcff_resnet50
   except:
     msg1: Train finished and save checkpoint at 1 epochs

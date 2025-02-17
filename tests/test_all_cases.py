@@ -316,7 +316,7 @@ class Testkd:
     @allure.title('kd_ab_loss_pretrain_an_epoch')
     @allure.description('这个case结果log文件都在集群10.5.36.31这个文件中：/mnt/lustre/share/gmllog/pytest_log_05202224/kd_ab_loss_pretrain_an_epoch_step1.txt')
     def test_kd_ab_loss_pretrain_an_epoch(self):
-        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/ab_loss/classification/resnet/abloss_res18_cifar10_distillation_8xb16_teacher_res50_backbone_pretrain.py work_dirs/abloss_res18_cifar10_distillation_8xb16_teacher_res50_backbone_pretrain/ --cfg-options runner.max_epochs=1 &> /mnt/lustre/share/gmllog/pytest_log_05202224/kd_ab_loss_pretrain_an_epoch_step1.txt""")
+        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 bash common/slurm_train.sh pat_dev fitnet configs/kd/ab_loss/classification/resnet/abloss_res18_cifar10_distillation_8xb16_teacher_res50_backbone_pretrain.py work_dirs/abloss_res18_cifar10_distillation_8xb16_teacher_res50_backbone_pretrain/ --cfg-options runner.max_epochs=1 &> /mnt/lustre/share/gmllog/pytest_log_05202224/kd_ab_loss_pretrain_an_epoch_step1.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         assert Utils.assert_result_in_logpath(ssh, 'accuracy_top-1', '/mnt/lustre/share/gmllog/pytest_log_05202224/kd_ab_loss_pretrain_an_epoch')
         assert Utils.assert_result_in_logpath(ssh, 'accuracy_top-5', '/mnt/lustre/share/gmllog/pytest_log_05202224/kd_ab_loss_pretrain_an_epoch')
@@ -325,7 +325,7 @@ class Testkd:
     @allure.title('kd_ab_loss_train_an_epoch')
     @allure.description('这个case结果log文件都在集群10.5.36.31这个文件中：/mnt/lustre/share/gmllog/pytest_log_05202224/kd_ab_loss_train_an_epoch_step1.txt')
     def test_kd_ab_loss_train_an_epoch(self):
-        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/ab_loss/classification/resnet/abloss_res18_cifar10_distillation_8xb16_teacher_res50_head_train.py work_dirs/abloss_res18_cifar10_distillation_8xb16_teacher_res50_head_train/ --cfg-options runner.max_epochs=1 &> /mnt/lustre/share/gmllog/pytest_log_05202224/kd_ab_loss_train_an_epoch_step1.txt""")
+        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 bash common/slurm_train.sh pat_dev fitnet configs/kd/ab_loss/classification/resnet/abloss_res18_cifar10_distillation_8xb16_teacher_res50_head_train.py work_dirs/abloss_res18_cifar10_distillation_8xb16_teacher_res50_head_train/ --cfg-options runner.max_epochs=1 &> /mnt/lustre/share/gmllog/pytest_log_05202224/kd_ab_loss_train_an_epoch_step1.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         assert Utils.assert_result_in_logpath(ssh, 'mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.', '/mnt/lustre/share/gmllog/pytest_log_05202224/kd_ab_loss_train_an_epoch')
 
@@ -333,7 +333,7 @@ class Testkd:
     @allure.title('kd_crd_loss_train_a_epoch')
     @allure.description('这个case结果log文件都在集群10.5.36.31这个文件中：/mnt/lustre/share/gmllog/pytest_log_05202224/kd_crd_loss_train_a_epoch_step1.txt')
     def test_kd_crd_loss_train_a_epoch(self):
-        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev crd configs/kd/crd_loss/classification/resnet/crdloss_res18_cifar10_distillation_8xb16_teacher_res50_dimout128.py work_dirs/crdloss_res18_cifar10_distillation_8xb16_teacher_res50_dimout128/ --cfg-options runner.max_epochs=1 &> /mnt/lustre/share/gmllog/pytest_log_05202224/kd_crd_loss_train_a_epoch_step1.txt""")
+        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 bash common/slurm_train.sh pat_dev crd configs/kd/crd_loss/classification/resnet/crdloss_res18_cifar10_distillation_8xb16_teacher_res50_dimout128.py work_dirs/crdloss_res18_cifar10_distillation_8xb16_teacher_res50_dimout128/ --cfg-options runner.max_epochs=1 &> /mnt/lustre/share/gmllog/pytest_log_05202224/kd_crd_loss_train_a_epoch_step1.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         assert Utils.assert_result_in_logpath(ssh, 'mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.', '/mnt/lustre/share/gmllog/pytest_log_05202224/kd_crd_loss_train_a_epoch')
 
@@ -341,7 +341,7 @@ class Testkd:
     @allure.title('kd_factor_transfer_pretrain_an_epoch')
     @allure.description('这个case结果log文件都在集群10.5.36.31这个文件中：/mnt/lustre/share/gmllog/pytest_log_05202224/kd_factor_transfer_pretrain_an_epoch_step1.txt')
     def test_kd_factor_transfer_pretrain_an_epoch(self):
-        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/factor_transfer/classification/resnet/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_pretrain.py work_dirs/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_pretrain/ --cfg-options runner.max_epochs=1 &> /mnt/lustre/share/gmllog/pytest_log_05202224/kd_factor_transfer_pretrain_an_epoch_step1.txt""")
+        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 bash common/slurm_train.sh pat_dev fitnet configs/kd/factor_transfer/classification/resnet/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_pretrain.py work_dirs/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_pretrain/ --cfg-options runner.max_epochs=1 &> /mnt/lustre/share/gmllog/pytest_log_05202224/kd_factor_transfer_pretrain_an_epoch_step1.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         assert Utils.assert_result_in_logpath(ssh, 'accuracy_top-1', '/mnt/lustre/share/gmllog/pytest_log_05202224/kd_factor_transfer_pretrain_an_epoch')
         assert Utils.assert_result_in_logpath(ssh, 'accuracy_top-5', '/mnt/lustre/share/gmllog/pytest_log_05202224/kd_factor_transfer_pretrain_an_epoch')
@@ -350,7 +350,7 @@ class Testkd:
     @allure.title('kd_factor_transfer_train_an_epoch')
     @allure.description('这个case结果log文件都在集群10.5.36.31这个文件中：/mnt/lustre/share/gmllog/pytest_log_05202224/kd_factor_transfer_train_an_epoch_step1.txt')
     def test_kd_factor_transfer_train_an_epoch(self):
-        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/factor_transfer/classification/resnet/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_train.py work_dirs/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_train/ --cfg-options runner.max_epochs=1 &> /mnt/lustre/share/gmllog/pytest_log_05202224/kd_factor_transfer_train_an_epoch_step1.txt""")
+        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 bash common/slurm_train.sh pat_dev fitnet configs/kd/factor_transfer/classification/resnet/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_train.py work_dirs/ftloss_res18_cifar10_distillation_8xb16_teacher_res50_neck_train/ --cfg-options runner.max_epochs=1 &> /mnt/lustre/share/gmllog/pytest_log_05202224/kd_factor_transfer_train_an_epoch_step1.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         assert Utils.assert_result_in_logpath(ssh, 'mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.', '/mnt/lustre/share/gmllog/pytest_log_05202224/kd_factor_transfer_train_an_epoch')
 
@@ -358,7 +358,7 @@ class Testkd:
     @allure.title('kd_fitnet_train_a_epoch')
     @allure.description('这个case结果log文件都在集群10.5.36.31这个文件中：/mnt/lustre/share/gmllog/pytest_log_05202224/kd_fitnet_train_a_epoch_step1.txt')
     def test_kd_fitnet_train_a_epoch(self):
-        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/fitnet/classification/fitnet_res18_cifar10_distillation_8xb16_teacher_res50_s4_mimic.py work_dirs/fitnet_res18_cifar10_distillation_8xb16_teacher_res50_s4_mimic/ --cfg-options runner.max_epochs=1 &> /mnt/lustre/share/gmllog/pytest_log_05202224/kd_fitnet_train_a_epoch_step1.txt""")
+        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 bash common/slurm_train.sh pat_dev fitnet configs/kd/fitnet/classification/fitnet_res18_cifar10_distillation_8xb16_teacher_res50_s4_mimic.py work_dirs/fitnet_res18_cifar10_distillation_8xb16_teacher_res50_s4_mimic/ --cfg-options runner.max_epochs=1 &> /mnt/lustre/share/gmllog/pytest_log_05202224/kd_fitnet_train_a_epoch_step1.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         assert Utils.assert_result_in_logpath(ssh, 'mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.', '/mnt/lustre/share/gmllog/pytest_log_05202224/kd_fitnet_train_a_epoch')
 
@@ -366,7 +366,7 @@ class Testkd:
     @allure.title('kd_ofd_train_a_epoch')
     @allure.description('这个case结果log文件都在集群10.5.36.31这个文件中：/mnt/lustre/share/gmllog/pytest_log_05202224/kd_ofd_train_a_epoch_step1.txt')
     def test_kd_ofd_train_a_epoch(self):
-        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/ofd/classification/resnet/ofdloss_res18_cifar10_distillation_8xb16_teacher_res50_train.py work_dirs/ofdloss_res18_cifar10_distillation_8xb16_teacher_res50_train --cfg-options runner.max_epochs=1 &> /mnt/lustre/share/gmllog/pytest_log_05202224/kd_ofd_train_a_epoch_step1.txt""")
+        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 bash common/slurm_train.sh pat_dev fitnet configs/kd/ofd/classification/resnet/ofdloss_res18_cifar10_distillation_8xb16_teacher_res50_train.py work_dirs/ofdloss_res18_cifar10_distillation_8xb16_teacher_res50_train --cfg-options runner.max_epochs=1 &> /mnt/lustre/share/gmllog/pytest_log_05202224/kd_ofd_train_a_epoch_step1.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         assert Utils.assert_result_in_logpath(ssh, 'mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.', '/mnt/lustre/share/gmllog/pytest_log_05202224/kd_ofd_train_a_epoch')
 
@@ -374,7 +374,7 @@ class Testkd:
     @allure.title('kd_rkd_train_a_epoch')
     @allure.description('这个case结果log文件都在集群10.5.36.31这个文件中：/mnt/lustre/share/gmllog/pytest_log_05202224/kd_rkd_train_a_epoch_step1.txt')
     def test_kd_rkd_train_a_epoch(self):
-        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 bash tools/slurm_train.sh pat_dev fitnet configs/kd/rkd/classification/resnet/rkdd_rkda_res18_cifar10_distillation_8xb16_teacher_res50_neck_mimic.py work_dirs/rkdd_rkda_res18_cifar10_distillation_8xb16_teacher_res50_neck_mimic --cfg-options runner.max_epochs=1 &> /mnt/lustre/share/gmllog/pytest_log_05202224/kd_rkd_train_a_epoch_step1.txt""")
+        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 bash common/slurm_train.sh pat_dev fitnet configs/kd/rkd/classification/resnet/rkdd_rkda_res18_cifar10_distillation_8xb16_teacher_res50_neck_mimic.py work_dirs/rkdd_rkda_res18_cifar10_distillation_8xb16_teacher_res50_neck_mimic --cfg-options runner.max_epochs=1 &> /mnt/lustre/share/gmllog/pytest_log_05202224/kd_rkd_train_a_epoch_step1.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         assert Utils.assert_result_in_logpath(ssh, 'mme - INFO - Now best checkpoint is saved as best_accuracy_top-1_epoch_1.pth.', '/mnt/lustre/share/gmllog/pytest_log_05202224/kd_rkd_train_a_epoch')
 
@@ -390,7 +390,7 @@ class Testnas:
     def test_nas_darts_darts_supernet_train(self):
         ssh.executor("""sed -i "s/max_epochs=50/max_epochs=1/g" ./configs/nas/darts/cifar10_bs16_supernet.py &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_darts_darts_supernet_train_step1.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        ssh.executor("""GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev nas_darts_darts_supernet_train configs/nas/darts/darts_cellbase_cifar10_supernet_1xb64.py work_dirs/darts_supernet_train &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_darts_darts_supernet_train_step2.txt""")
+        ssh.executor("""GPUS=4 GPUS_PER_NODE=4 common/slurm_train.sh pat_dev nas_darts_darts_supernet_train configs/nas/darts/darts_cellbase_cifar10_supernet_1xb64.py work_dirs/darts_supernet_train &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_darts_darts_supernet_train_step2.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         time.sleep(180)
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
@@ -404,7 +404,7 @@ class Testnas:
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         Utils.get_result_from_consule(ssh, """setarg(${{EXPORT_YAML}},find work_dirs/darts_supernet_train -name "*.yaml") &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_darts_darts_supernet_test_step2.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        cli = """GPUS=4 GPUS_PER_NODE=4 tools/slurm_test.sh pat_dev nas_darts_darts_supernet_test configs/nas/darts/darts_cellbase_cifar10_subnet_1xb96.py work_dirs/darts_supernet_train/latest.pth --work-dir work_dirs/xxx_test --eval accuracy --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}} &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_darts_darts_supernet_test_step3.txt"""
+        cli = """GPUS=4 GPUS_PER_NODE=4 common/slurm_test.sh pat_dev nas_darts_darts_supernet_test configs/nas/darts/darts_cellbase_cifar10_subnet_1xb96.py work_dirs/darts_supernet_train/latest.pth --work-dir work_dirs/xxx_test --eval accuracy --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}} &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_darts_darts_supernet_test_step3.txt"""
         global_arg = Utils.get_json_value()
         print(global_arg)
         for k,v in global_arg.items():
@@ -427,7 +427,7 @@ class Testnas:
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         ssh.executor("""sed -i "s#/mnt/lustre/share_data/wangshiguang/train_4k.txt#data/gml_unique/imagenet-1k/meta/train.txt#g" ./configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_bignas_bignas_supernet_train_step3.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        ssh.executor("""GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev nas_bignas_bignas_supernet_train configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py work_dirs/bignas_supernet_train &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_bignas_bignas_supernet_train_step4.txt""")
+        ssh.executor("""GPUS=4 GPUS_PER_NODE=4 common/slurm_train.sh pat_dev nas_bignas_bignas_supernet_train configs/nas/bignas/bignas_mobilenetv3_large_supernet_32xb64.py work_dirs/bignas_supernet_train &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_bignas_bignas_supernet_train_step4.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         time.sleep(180)
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
@@ -445,7 +445,7 @@ class Testnas:
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         ssh.executor("""sed -i "s#data_prefix='data/imagenet/#data_prefix='s3://PAT/datasets/project_data/gml_data/gml_unique/imagenet_1k/#g" ./configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_bignas_bignas_supernet_search_step4.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        ssh.executor("""GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev nas_bignas_bignas_supernet_search configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py work_dirs/bignas_supernet_train/latest.pth --work-dir work_dirs/bignas_search &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_bignas_bignas_supernet_search_step5.txt""")
+        ssh.executor("""GPUS=4 GPUS_PER_NODE=4 common/slurm_search.sh pat_dev nas_bignas_bignas_supernet_search configs/nas/bignas/bignas_mobilenetv3_large_evolution_search_8xb256.py work_dirs/bignas_supernet_train/latest.pth --work-dir work_dirs/bignas_search &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_bignas_bignas_supernet_search_step5.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         time.sleep(180)
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
@@ -461,7 +461,7 @@ class Testnas:
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         Utils.get_result_from_consule(ssh, """setarg(${{EXPORT_PTH}},find ./work_dirs/bignas_search -name "final_subnet_step5*.pth") &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_bignas_bignas_supernet_test_step3.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        cli = """GPUS=4 GPUS_PER_NODE=4 tools/slurm_test.sh pat_dev nas_bignas_bignas_supernet_test  configs/nas/bignas/bignas_mobilenetv3_large_subnet_16xb128_flops600M.py ${{EXPORT_PTH}} --work-dir work_dirs/xxx_test --eval accuracy --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}} &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_bignas_bignas_supernet_test_step4.txt"""
+        cli = """GPUS=4 GPUS_PER_NODE=4 common/slurm_test.sh pat_dev nas_bignas_bignas_supernet_test  configs/nas/bignas/bignas_mobilenetv3_large_subnet_16xb128_flops600M.py ${{EXPORT_PTH}} --work-dir work_dirs/xxx_test --eval accuracy --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}} &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_bignas_bignas_supernet_test_step4.txt"""
         global_arg = Utils.get_json_value()
         print(global_arg)
         for k,v in global_arg.items():
@@ -481,7 +481,7 @@ class Testnas:
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         ssh.executor("""sed -i "s/dict(interval=1000)/dict(interval=100)/g" ./configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_spos_spos_supernet_train_step2.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        ssh.executor("""GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev nas_spos_spos_supernet_train configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py work_dirs/spos_supernet &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_spos_spos_supernet_train_step3.txt""")
+        ssh.executor("""GPUS=4 GPUS_PER_NODE=4 common/slurm_train.sh pat_dev nas_spos_spos_supernet_train configs/nas/spos/spos_shufflenetv2_supernet_8xb128_in1k.py work_dirs/spos_supernet &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_spos_spos_supernet_train_step3.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         time.sleep(180)
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
@@ -505,7 +505,7 @@ class Testnas:
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         ssh.executor("""sed -i "s/num_crossover=25/num_crossover=3/g" ./configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_spos_spos_supernet_search_step7.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        ssh.executor("""GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev nas_spos_spos_supernet_search configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py work_dirs/spos_supernet/latest.pth --work-dir work_dirs/spos_search &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_spos_spos_supernet_search_step8.txt""")
+        ssh.executor("""GPUS=4 GPUS_PER_NODE=4 common/slurm_search.sh pat_dev nas_spos_spos_supernet_search configs/nas/spos/spos_shufflenetv2_evolution_search_8xb2048_in1k.py work_dirs/spos_supernet/latest.pth --work-dir work_dirs/spos_search &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_spos_spos_supernet_search_step8.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         time.sleep(180)
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
@@ -519,7 +519,7 @@ class Testnas:
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         ssh.executor("""sed -i "s/max_iters=300000/max_iters=100/g" ./configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_spos_spos_subnet_retrain_step2.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        cli = """GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev nas_spos_spos_subnet_retrain configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py work_dirs/spos_retrain --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}} &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_spos_spos_subnet_retrain_step3.txt"""
+        cli = """GPUS=4 GPUS_PER_NODE=4 common/slurm_train.sh pat_dev nas_spos_spos_subnet_retrain configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py work_dirs/spos_retrain --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}} &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_spos_spos_subnet_retrain_step3.txt"""
         global_arg = Utils.get_json_value()
         print(global_arg)
         for k,v in global_arg.items():
@@ -539,7 +539,7 @@ class Testnas:
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         Utils.get_result_from_consule(ssh, """setarg(${{EXPORT_YAML}},find ./work_dirs/spos_search -name "*.yaml") &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_spos_spos_subnet_test_step2.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        cli = """GPUS=4 GPUS_PER_NODE=4 tools/slurm_test.sh pat_dev nas_spos_spos_subnet_test configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py ${{EXPORT_PTH}} --work-dir work_dirs/spos_test --eval accuracy --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}} &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_spos_spos_subnet_test_step3.txt"""
+        cli = """GPUS=4 GPUS_PER_NODE=4 common/slurm_test.sh pat_dev nas_spos_spos_subnet_test configs/nas/spos/spos_shufflenetv2_subnet_8xb128_in1k.py ${{EXPORT_PTH}} --work-dir work_dirs/spos_test --eval accuracy --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}} &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_spos_spos_subnet_test_step3.txt"""
         global_arg = Utils.get_json_value()
         print(global_arg)
         for k,v in global_arg.items():
@@ -565,7 +565,7 @@ class Testnas:
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         ssh.executor("""sed -i "s/num_mutation=128/num_mutation=2/g" ./configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_zennas_zennas_supernet_search_step5.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        ssh.executor("""GPUS=4 GPUS_PER_NODE=4 tools/slurm_search.sh pat_dev nas_zennas_zennas_supernet_search configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py data/gml_checkpoint/0310_bignas_latest.pth --work-dir work_dirs/zennas_supernet_search &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_zennas_zennas_supernet_search_step6.txt""")
+        ssh.executor("""GPUS=4 GPUS_PER_NODE=4 common/slurm_search.sh pat_dev nas_zennas_zennas_supernet_search configs/nas/zennas/mobilenetv3_zenscore_evolution_search_8xb256.py data/gml_checkpoint/0310_bignas_latest.pth --work-dir work_dirs/zennas_supernet_search &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_zennas_zennas_supernet_search_step6.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         time.sleep(180)
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
@@ -579,7 +579,7 @@ class Testnas:
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         ssh.executor("""sed -i "s/max_epochs=480/max_epochs=1/g" configs/nas/zennas/EXP_3_E3tozennet0.1_distillation_8xb64_teacher_mimic_ns_connnector.py &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_zennas_zennas_supernet_retrain_step2.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        ssh.executor("""GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev nas_zennas_zennas_supernet_retrain configs/nas/zennas/EXP_3_E3tozennet0.1_distillation_8xb64_teacher_mimic_ns_connnector.py work_dirs/nas_zennas_zennas_supernet_retrain &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_zennas_zennas_supernet_retrain_step3.txt""")
+        ssh.executor("""GPUS=4 GPUS_PER_NODE=4 common/slurm_train.sh pat_dev nas_zennas_zennas_supernet_retrain configs/nas/zennas/EXP_3_E3tozennet0.1_distillation_8xb64_teacher_mimic_ns_connnector.py work_dirs/nas_zennas_zennas_supernet_retrain &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_zennas_zennas_supernet_retrain_step3.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         time.sleep(180)
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
@@ -595,7 +595,7 @@ class Testnas:
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         ssh.executor("""sed -i "s/samples_per_gpu=128/samples_per_gpu=64/g" ./configs/_base_/datasets/mmcls/imagenet_bs128_cream_224.py &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_cream_cream_supernet_train_step3.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        ssh.executor("""GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev nas_cream_cream_supernet_train configs/nas/cream/cream_mobilenetv3_supernet_8xb128_max500M.py work_dirs/cream_supernet &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_cream_cream_supernet_train_step4.txt""")
+        ssh.executor("""GPUS=4 GPUS_PER_NODE=4 common/slurm_train.sh pat_dev nas_cream_cream_supernet_train configs/nas/cream/cream_mobilenetv3_supernet_8xb128_max500M.py work_dirs/cream_supernet &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_cream_cream_supernet_train_step4.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         time.sleep(180)
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
@@ -611,7 +611,7 @@ class Testnas:
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         ssh.executor("""sed -i "s/samples_per_gpu=128/samples_per_gpu=64/g" ./configs/_base_/datasets/mmcls/imagenet_bs128_cream_224.py &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_cream_cream_subnet_retrain_step3.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        cli = """GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev nas_cream_cream_subnet_retrain configs/nas/cream/cream_mobilenetv3_subnet_16xb128_max500M.py work_dirs/cream_retrain --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}} &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_cream_cream_subnet_retrain_step4.txt"""
+        cli = """GPUS=4 GPUS_PER_NODE=4 common/slurm_train.sh pat_dev nas_cream_cream_subnet_retrain configs/nas/cream/cream_mobilenetv3_subnet_16xb128_max500M.py work_dirs/cream_retrain --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}} &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_cream_cream_subnet_retrain_step4.txt"""
         global_arg = Utils.get_json_value()
         print(global_arg)
         for k,v in global_arg.items():
@@ -631,7 +631,7 @@ class Testnas:
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         Utils.get_result_from_consule(ssh, """setarg(${{EXPORT_YAML}},find ./work_dirs/cream_supernet -name "*.yaml") &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_cream_cream_subnet_test_step2.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        cli = """GPUS=4 GPUS_PER_NODE=4 tools/slurm_test.sh pat_dev nas_cream_cream_subnet_test configs/nas/cream/cream_mobilenetv3_subnet_16xb128_max500M.py ${{EXPORT_PTH}} --eval accuracy --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}} &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_cream_cream_subnet_test_step3.txt"""
+        cli = """GPUS=4 GPUS_PER_NODE=4 common/slurm_test.sh pat_dev nas_cream_cream_subnet_test configs/nas/cream/cream_mobilenetv3_subnet_16xb128_max500M.py ${{EXPORT_PTH}} --eval accuracy --cfg-options algorithm.mutable_cfg=${{EXPORT_YAML}} &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_cream_cream_subnet_test_step3.txt"""
         global_arg = Utils.get_json_value()
         print(global_arg)
         for k,v in global_arg.items():
@@ -651,7 +651,7 @@ class Testnas:
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         Utils.get_result_from_consule(ssh, """setarg(${{SUPERNET_FILE}},find ./configs/nas/nsganet/imagenet/ -name "nsganet_supernet_*.py") &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_nsganet_nsganet_supernet_train_step2.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        cli = """GPUS=4 GPUS_PER_NODE=4 tools/slurm_train.sh pat_dev nas_nsganet_nsganet_supernet_train ${{SUPERNET_FILE}} work_dirs/nsganet_supernet &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_nsganet_nsganet_supernet_train_step3.txt"""
+        cli = """GPUS=4 GPUS_PER_NODE=4 common/slurm_train.sh pat_dev nas_nsganet_nsganet_supernet_train ${{SUPERNET_FILE}} work_dirs/nsganet_supernet &> /mnt/lustre/share/gmllog/pytest_log_05202224/nas_nsganet_nsganet_supernet_train_step3.txt"""
         global_arg = Utils.get_json_value()
         print(global_arg)
         for k,v in global_arg.items():
@@ -683,7 +683,7 @@ class Testpruning:
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         ssh.executor("""sed -i "s/samples_per_gpu=256/samples_per_gpu=128/g" ./configs/_base_/datasets/mmcls/imagenet_bs256_autoslim.py &> /mnt/lustre/share/gmllog/pytest_log_05202224/pruning_dmcp_dmcp_mbv2_train_step5.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 tools/slurm_train.sh pat_dev pruning_dmcp_dmcp_mbv2_train configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_f150.py work_dirs/dmcp_mbv2_train &> /mnt/lustre/share/gmllog/pytest_log_05202224/pruning_dmcp_dmcp_mbv2_train_step6.txt""")
+        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 common/slurm_train.sh pat_dev pruning_dmcp_dmcp_mbv2_train configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_f150.py work_dirs/dmcp_mbv2_train &> /mnt/lustre/share/gmllog/pytest_log_05202224/pruning_dmcp_dmcp_mbv2_train_step6.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         assert Utils.assert_result_in_logpath(ssh, 'Saving checkpoint at 1 epochs', '/mnt/lustre/share/gmllog/pytest_log_05202224/pruning_dmcp_dmcp_mbv2_train')
 
@@ -695,7 +695,7 @@ class Testpruning:
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         ssh.executor("""sed -i "s#/DMCP_WORKDIR/model_sample/subnet.npy#work_dirs/dmcp_mbv2_train/model_sample/subnet_1.npy#g" ./configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_retrain.py &> /mnt/lustre/share/gmllog/pytest_log_05202224/pruning_dmcp_dmcp_mbv2_retrain_step2.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 tools/slurm_train.sh pat_dev pruning_dmcp_dmcp_mbv2_retrain configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_retrain.py work_dirs/dmcp_mbv2_retrain &> /mnt/lustre/share/gmllog/pytest_log_05202224/pruning_dmcp_dmcp_mbv2_retrain_step3.txt""")
+        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 common/slurm_train.sh pat_dev pruning_dmcp_dmcp_mbv2_retrain configs/pruning/dmcp/dmcp_mobilenetv2_imagenet_8xb256_retrain.py work_dirs/dmcp_mbv2_retrain &> /mnt/lustre/share/gmllog/pytest_log_05202224/pruning_dmcp_dmcp_mbv2_retrain_step3.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         assert Utils.assert_result_in_logpath(ssh, 'Retrain finished', '/mnt/lustre/share/gmllog/pytest_log_05202224/pruning_dmcp_dmcp_mbv2_retrain')
 
@@ -705,6 +705,6 @@ class Testpruning:
     def test_pruning_dcff_dcff_resnet50(self):
         ssh.executor("""sed -i "s/max_epochs=120/max_epochs=1/g" ./configs/pruning/dcff/classification/dcff_resnet50_imagenet_8xb32.py &> /mnt/lustre/share/gmllog/pytest_log_05202224/pruning_dcff_dcff_resnet50_step1.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
-        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 tools/slurm_train.sh pat_dev pruning_dcff_dcff_resnet50 configs/pruning/dcff/classification/dcff_resnet50_imagenet_8xb32.py work_dirs/dcff_resnet50 &> /mnt/lustre/share/gmllog/pytest_log_05202224/pruning_dcff_dcff_resnet50_step2.txt""")
+        ssh.executor("""GPUS=1 GPUS_PER_NODE=1 common/slurm_train.sh pat_dev pruning_dcff_dcff_resnet50 configs/pruning/dcff/classification/dcff_resnet50_imagenet_8xb32.py work_dirs/dcff_resnet50 &> /mnt/lustre/share/gmllog/pytest_log_05202224/pruning_dcff_dcff_resnet50_step2.txt""")
         print('现在的准确时间是：{}'.format(time.strftime('%m%d%H%M', time.localtime())))
         assert Utils.assert_result_in_logpath(ssh, 'Train finished and save checkpoint at 1 epochs', '/mnt/lustre/share/gmllog/pytest_log_05202224/pruning_dcff_dcff_resnet50')
